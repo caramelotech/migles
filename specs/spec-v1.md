@@ -1,223 +1,361 @@
-# Migles — Spec do Produto
+# Migles — Product Specification v1
 
-**Gerenciamento de Eventos entre Amigos e Comunidades**
+> **Spec Driven Development**
+> Todo desenvolvimento parte deste spec. Mudanças no produto devem refletir aqui antes (ou junto) de virar código.
 
-> Versão 1.0 · Abril 2026 · Status: Rascunho Inicial
+| Campo  | Valor                                       |
+| ------ | ------------------------------------------- |
+| Versão | 1.0                                         |
+| Status | `[em discussão]`                            |
+| Data   | Abril 2026                                  |
+| Time   | 2–4 pessoas                                 |
+| Stack  | React Native · React · Node.js + TypeScript |
 
-## 1. Visão Geral do Produto
 
-### 1.1 Descrição
+## Índice
 
-O Migles é uma plataforma multiplataforma (mobile + web) para criação e gerenciamento de eventos entre amigos e comunidades. O produto permite que usuários organizem encontros de forma simples, convidem pessoas do seu círculo social e participem de comunidades com interesses em comum.
+1. [Visão do Produto](#1-visão-do-produto)
+2. [Problema](#2-problema)
+3. [Público-alvo](#3-público-alvo)
+4. [Filosofia e Princípios](#4-filosofia-e-princípios)
+5. [Escopo do MVP](#5-escopo-do-mvp)
+6. [Domínios e Entidades](#6-domínios-e-entidades)
+7. [Requisitos Funcionais](#7-requisitos-funcionais)
+8. [Regras de Negócio](#8-regras-de-negócio)
+9. [Requisitos Não-Funcionais](#9-requisitos-não-funcionais)
+10. [Questões em Aberto](#10-questões-em-aberto)
+11. [Fora do Escopo](#11-fora-do-escopo)
+12. [Histórico de Mudanças](#12-histórico-de-mudanças)
 
-O foco inicial é o núcleo de gestão de eventos. Expansões futuras como registro de leituras, filmes e séries com geração de tópicos de discussão estão previstas, mas fora do escopo desta versão.
 
-### 1.2 Resumo do Produto
+## 1. Visão do Produto
 
-| Campo           | Detalhe                                                                          |
-| --------------- | -------------------------------------------------------------------------------- |
-| Nome do produto | Migles                                                                           |
-| Plataformas     | Mobile (iOS e Android) + Web                                                     |
-| Stack técnica   | React Native (mobile), React (web), Node.js + TypeScript (API)                   |
-| Público-alvo    | Pessoas que organizam eventos sociais com amigos e/ou fazem parte de comunidades |
-| Fase atual      | Ideação — sem código ou protótipo                                                |
-| Time            | Pequeno (2 a 4 pessoas)                                                          |
+**Migles** é uma plataforma multiplataforma (mobile + web) para organização e gerenciamento de eventos sociais entre amigos e comunidades.
 
-### 1.3 Problema que Resolve
+O produto centraliza a coordenação de encontros — controle de presença, limite de vagas, lista de espera e comunicação — funcionando como **camada de organização complementar** às ferramentas de comunicação já utilizadas pelos usuários (WhatsApp, Telegram, Discord).
 
-Organizar eventos informais entre amigos ou dentro de comunidades ainda é fragmentado: convites são feitos via links ou código, que podem ser compartilhados via WhatsApp, ou via nome de usuário, com controle de presença. O Migles une criação de evento, controle de participantes e lista de espera em um único lugar, com integração natural ao WhatsApp para comunicação.
+> **Migles não substitui plataformas de comunicação. Migles organiza o que acontece fora delas.**
 
-## 2. Usuários e Perfis
+### Visão de longo prazo
 
-### 2.1 Tipos de Usuário
+Tornar-se a principal plataforma para organização e descoberta de eventos sociais e comunitários, facilitando tanto encontros privados quanto a descoberta de novas comunidades e experiências.
 
-#### Usuário Comum
 
-Qualquer pessoa cadastrada na plataforma. Pode:
+## 2. Problema
 
-- Criar e gerenciar seus próprios eventos
-- Convidar amigos para seus eventos
-- Participar de eventos de amigos ou comunidades
-- Fazer parte de uma ou mais comunidades (ou nenhuma)
-- Confirmar ou recusar presença em eventos
+Organizar eventos sociais informalmente é fragmentado e pouco eficiente:
 
-#### Admin / Gestor de Comunidade
+- Confirmações de presença são manuais e se perdem em conversas de grupo
+- Informações sobre participantes ficam espalhadas e sem histórico
+- Controle de limite de vagas e lista de espera é inexistente ou feito à mão
+- Comunidades não têm ferramentas para divulgar e gerenciar seus próprios eventos
+- Discussões importantes sobre o evento se perdem no histórico de chats
 
-Usuário com permissões elevadas dentro de uma comunidade específica. Pode:
 
-- Criar e gerenciar eventos vinculados à comunidade
-- Aprovar solicitações de entrada na comunidade
-- Gerenciar membros da comunidade
-- Todas as permissões do Usuário Comum
+## 3. Público-alvo
 
-### 2.2 Autenticação
+### Usuário primário
 
-O cadastro e login serão oferecidos por duas modalidades:
+Pessoas que organizam ou participam frequentemente de:
 
-- **Login social:** Google e Apple
-- **E-mail e senha:** cadastro tradicional com validação de e-mail
+- Encontros entre amigos
+- Eventos de hobbies e interesses
+- Grupos sociais recorrentes
+- Comunidades temáticas
 
-Ambas as modalidades devem estar disponíveis em todas as plataformas. Sessão persistente com renovação automática de token.
+**Padrão de uso esperado:** semanal — consulta de agenda, confirmação de presença e descoberta de próximos eventos.
 
-## 3. Funcionalidades
+### Usuário secundário
 
-### 3.1 Gestão de Eventos
+Organizadores e moderadores de comunidades que precisam de ferramentas de gestão de membros e eventos.
 
-#### Criação de Evento
 
-Um usuário pode criar um evento informando:
+## 4. Filosofia e Princípios
 
-- Título e descrição
-- Data, horário e local (presencial ou online)
-- Limite de participantes (opcional — sem limite por padrão)
-- Vinculação a uma comunidade (opcional — apenas admins da comunidade podem fazer isso)
-- Visibilidade: privado (só convidados) ou aberto à comunidade
+### Evento é o objeto central
 
-#### Confirmação de Presença (RSVP)
+O **evento** é a entidade principal da plataforma. Toda feature deve servir à criação, descoberta ou participação em eventos.
 
-Cada evento suporta RSVP com os seguintes estados para o participante:
+Comunidades atuam como:
 
-- **Confirmado**
-- **Recusado**
-- **Pendente** (convite recebido, não respondido)
+- Agrupadores de usuários com interesses comuns
+- Centralizadores de eventos recorrentes
+- Facilitadores de descoberta
 
-Quando o evento tem limite de vagas:
+### Complementaridade, não substituição
 
-- Participantes confirmados após o limite entram automaticamente na lista de espera
-- Em caso de desistência, o próximo da fila recebe notificação e é promovido automaticamente
+O Migles não compete com WhatsApp ou outros mensageiros. Ele se integra a eles via compartilhamento de links e convites externos.
 
-#### Convites
+### Simplicidade primeiro
 
-O criador do evento pode:
+Discovery inteligente, recomendações algorítmicas e social graph complexo são evoluções futuras. O MVP prioriza o fluxo core: criar evento → convidar → confirmar presença → gerenciar.
 
-- Convidar usuários da plataforma diretamente (por nome ou contato)
-- Gerar link de convite ou QR code para compartilhamento externo
-- Compartilhar o evento via WhatsApp (deep link ou link para a web)
 
-### 3.2 Comunidades
+## 5. Escopo do MVP
 
-#### Criação e Gestão
+### Incluído
 
-Qualquer usuário pode criar uma comunidade, tornando-se automaticamente seu admin. A comunidade tem:
+| Pilar                     | Descrição                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| **Event Management**      | Criação, gestão de participantes, RSVP, lista de espera, múltiplos organizadores |
+| **Community Basic Layer** | Criação, entrada (pública/privada/convite), gestão básica de membros             |
 
-- Nome e descrição
-- Foto/avatar
-- Tipo: pública (qualquer um entra) ou fechada (entrada por aprovação ou convite)
+### Explicitamente fora do MVP
 
-#### Formas de Entrada
+Ver seção [11. Fora do Escopo](#11-fora-do-escopo).
 
-Uma comunidade pode combinar diferentes mecanismos de entrada:
 
-- **Link de convite ou QR code:** qualquer pessoa com o link pode solicitar ou entrar diretamente
-- **Solicitação + aprovação do admin:** o usuário solicita e o admin aprova ou recusa
-- **Comunidade pública:** entrada livre, sem aprovação
+## 6. Domínios e Entidades
 
-O admin define quais mecanismos estão habilitados para aquela comunidade.
+### 6.1 Usuário
 
-#### Eventos de Comunidade
+Representa qualquer pessoa cadastrada na plataforma.
 
-Admins e gestores podem criar eventos vinculados à comunidade. Esses eventos:
+**Atributos principais:** nome, e-mail, foto de perfil, método de autenticação.
 
-- Aparecem no feed de todos os membros
-- Podem ter visibilidade restrita a membros ou aberta ao público
-- Seguem as mesmas regras de RSVP e lista de espera
+**Papéis possíveis (por contexto):**
 
-### 3.3 Comentários e Interação Social
+- `participant` — em eventos
+- `organizer` — em eventos
+- `member` — em comunidades
+- `admin` — em comunidades
 
-#### Comentários em Eventos
+> Um mesmo usuário pode ter papéis diferentes em contextos diferentes.
 
-Cada evento tem uma seção de comentários onde participantes podem interagir:
+### 6.2 Evento
 
-- Comentários em thread (respostas aninhadas)
-- Compartilhar comentário específico via WhatsApp
-- Compartilhar o evento completo via WhatsApp
+Objeto central da plataforma. Representa um encontro com data, local e participantes.
 
-#### Integração com WhatsApp
+**Atributos principais:**
 
-O WhatsApp é reconhecido como o canal principal de comunicação dos usuários. O app não visa substituí-lo, mas se integra a ele:
+| Atributo             | Tipo     | Obrigatório | Notas                                         |
+| -------------------- | -------- | ----------- | --------------------------------------------- |
+| Título               | string   | sim         | —                                             |
+| Descrição            | string   | não         | —                                             |
+| Data e horário       | datetime | sim         | —                                             |
+| Local                | string   | não         | Presencial ou online                          |
+| Limite de vagas      | integer  | não         | Null = sem limite                             |
+| Visibilidade         | enum     | sim         | `private` · `community`                       |
+| Comunidade vinculada | relation | não         | Requer papel de admin/organizer na comunidade |
 
-- Compartilhamento do evento via WhatsApp (link para a plataforma web)
-- Compartilhamento de comentários específicos via deep link
-- Convite de pessoas externas via link compartilhável no WhatsApp
+**Estados do evento:** `draft` · `published` · `cancelled` · `finished`
 
-## 4. Fluxos Principais
+### 6.3 RSVP
 
-### 4.1 Criar um Evento Pessoal
+Representa a relação entre um usuário e um evento.
 
-1. Usuário acessa a tela de criação de evento
-2. Preenche título, data, local e opcionalmente limite de vagas
-3. Decide se convida pessoas diretamente ou compartilha link
-4. Evento é publicado e aparece no perfil do usuário
+**Estados possíveis:**
 
-### 4.2 Criar um Evento de Comunidade
+| Estado       | Descrição                         |
+| ------------ | --------------------------------- |
+| `pending`    | Convidado, ainda não respondeu    |
+| `confirmed`  | Confirmou presença                |
+| `declined`   | Recusou o convite                 |
+| `waitlisted` | Confirmou, mas evento está lotado |
 
-1. Usuário (admin ou gestor) acessa a comunidade
-2. Cria evento e vincula à comunidade
-3. Evento aparece no feed de membros da comunidade
-4. Membros recebem notificação e podem confirmar presença
+### 6.4 Comunidade
 
-### 4.3 Entrar em uma Comunidade
+Agrupa usuários com interesses comuns e centraliza seus eventos.
 
-1. **Via link/QR code:** usuário acessa o link e entra diretamente (se pública) ou envia solicitação (se fechada)
-2. **Via busca:** usuário encontra comunidade pública e solicita entrada
-3. **Via convite direto:** admin convida o usuário pelo app
+**Atributos principais:**
 
-### 4.4 Confirmar Presença em Evento
+| Atributo              | Tipo   | Obrigatório | Notas                |
+| --------------------- | ------ | ----------- | -------------------- |
+| Nome                  | string | sim         | —                    |
+| Descrição             | string | não         | —                    |
+| Avatar/foto           | image  | não         | —                    |
+| Tipo                  | enum   | sim         | `public` · `private` |
+| Mecanismos de entrada | flags  | sim         | Ver seção 7.2        |
 
-1. Usuário recebe convite ou vê evento no feed
-2. Acessa o evento e confirma presença
-3. Se o evento está lotado, entra na lista de espera e recebe notificação caso uma vaga abra
+### 6.5 Comentário
 
-## 5. Plataformas e Partes do Produto
+Interação textual vinculada a um evento. Suporta threads (respostas aninhadas).
 
-### 5.1 Aplicativo Mobile (React Native)
+**Visibilidade:** segue as regras do evento ao qual pertence (ver seção 8.3).
 
-Versões iOS e Android. É a interface principal para usuários no dia a dia. Deve suportar:
 
-- Notificações push (confirmações, lista de espera, convites)
-- Deep links (abertura de eventos ou comunidades por link externo)
-- Compartilhamento nativo com WhatsApp e outros apps
-- QR code (leitura e geração)
+## 7. Requisitos Funcionais
 
-### 5.2 Plataforma Web (React)
+### 7.1 Autenticação
 
-Interface acessível pelo navegador. Serve principalmente para:
+- [ ] Cadastro e login via **e-mail e senha** com validação de e-mail
+- [ ] Login social via **Google**
+- [ ] Login social via **Apple**
+- [ ] Sessão persistente com renovação automática de token (JWT)
+- [ ] Todas as modalidades disponíveis em mobile e web
 
-- Acesso via links compartilhados (preview de evento sem instalar o app)
-- Gestão de comunidades e eventos em desktop
-- Página pública de evento para usuários não cadastrados visualizarem
+### 7.2 Gestão de Eventos
 
-### 5.3 API (Node.js + TypeScript)
+#### Criação
 
-Backend responsável por toda a lógica de negócio. Deve expor:
+- [ ] Criar evento com título, descrição, data, horário e local
+- [ ] Definir limite de vagas (opcional)
+- [ ] Vincular evento a uma comunidade (requer ser admin/organizer da comunidade)
+- [ ] Definir visibilidade: `private` ou `community`
+- [ ] Definir múltiplos organizadores no momento da criação ou posteriormente
 
-- API RESTful (ou GraphQL — a definir) consumida por mobile e web
+#### Participantes e Convites
+
+- [ ] Convidar usuários da plataforma diretamente (por nome ou busca)
+- [ ] Gerar link de convite compartilhável
+- [ ] Gerar QR code do evento
+- [ ] Compartilhar evento via WhatsApp (deep link para a plataforma web)
+- [ ] Organizador pode remover RSVP de participante manualmente
+
+#### RSVP
+
+- [ ] Participante pode confirmar presença (`confirmed`)
+- [ ] Participante pode recusar convite (`declined`)
+- [ ] Participante pode alterar sua resposta enquanto o evento não ocorreu
+- [ ] Estado inicial ao receber convite: `pending`
+
+#### Lista de Espera
+
+- [ ] Ao atingir o limite de vagas, novos confirmados entram automaticamente em `waitlisted`
+- [ ] Em caso de desistência, o próximo da fila é promovido automaticamente para `confirmed`
+- [ ] Usuário promovido recebe notificação
+
+#### Comentários
+
+- [ ] Participantes podem comentar no evento
+- [ ] Comentários suportam threads (respostas aninhadas)
+- [ ] Compartilhar comentário específico via WhatsApp
+- [ ] Admins/organizadores podem moderar (remover) comentários
+
+### 7.3 Gestão de Comunidades
+
+#### Criação
+
+- [ ] Qualquer usuário pode criar uma comunidade, tornando-se automaticamente admin
+- [ ] Definir nome, descrição e avatar
+- [ ] Definir tipo: `public` ou `private`
+- [ ] Configurar mecanismos de entrada habilitados (combinação possível):
+  - Link de convite / QR code
+  - Solicitação + aprovação do admin
+  - Entrada livre (somente comunidades públicas)
+
+#### Entrada de Membros
+
+- [ ] Buscar comunidade por nome ou código
+- [ ] Entrar diretamente em comunidade pública
+- [ ] Solicitar entrada em comunidade privada
+- [ ] Admin pode convidar usuário diretamente
+- [ ] Admin aprova ou recusa solicitações pendentes
+
+#### Administração
+
+- [ ] Admin pode remover membros
+- [ ] Admin pode banir membros permanentemente (impede reentrada via link)
+- [ ] Admin pode moderar comentários de eventos da comunidade
+- [ ] Admin pode gerenciar denúncias/reportes
+
+### 7.4 Discovery e Compartilhamento
+
+- [ ] Busca manual de comunidades por nome ou código
+- [ ] Descoberta de eventos via comunidades das quais o usuário faz parte
+- [ ] Compartilhamento viral por links (evento e comunidade)
+- [ ] Preview público de evento acessível sem login (via web)
+
+
+## 8. Regras de Negócio
+
+### 8.1 Ownership de Evento
+
+- Todo evento deve ter ao menos um organizador
+- Evento não pode existir sem owner
+- O criador do evento é automaticamente organizador
+- Organizadores têm as mesmas permissões de gestão do evento
+
+### 8.2 Waitlist
+
+- Limite de vagas `null` desabilita completamente a lista de espera
+- A promoção da fila é automática — não requer ação do organizador
+- A ordem da lista de espera segue a ordem de confirmação (FIFO)
+
+### 8.3 Visibilidade e Privacidade
+
+| Contexto               | Quem pode visualizar  | Quem pode comentar           |
+| ---------------------- | --------------------- | ---------------------------- |
+| Evento privado         | Apenas convidados     | Apenas convidados            |
+| Evento de comunidade   | Membros da comunidade | Membros da comunidade        |
+| Preview via link (web) | Qualquer pessoa       | Não se aplica (requer login) |
+
+- Evento privado pode ter seu link compartilhado/reencaminhado
+- Usuários banidos/bloqueados não acessam o evento via link
+
+### 8.4 Papéis em Comunidade
+
+- Um usuário pode ser admin em uma comunidade e membro simples em outra
+- Apenas admins podem criar eventos vinculados à comunidade
+- Apenas admins podem aprovar/rejeitar membros em comunidades privadas
+
+### 8.5 Moderação
+
+- Usuário banido de uma comunidade não pode reingressar por nenhum mecanismo (link, busca ou convite)
+- Denúncias são recebidas pelos admins da comunidade; não há moderação centralizada no MVP
+
+
+## 9. Requisitos Não-Funcionais
+
+### 9.1 Plataformas
+
+| Plataforma     | Tech                 | Responsabilidade principal                           |
+| -------------- | -------------------- | ---------------------------------------------------- |
+| Mobile iOS     | React Native         | Interface primária do usuário                        |
+| Mobile Android | React Native         | Interface primária do usuário                        |
+| Web            | React                | Preview de eventos, acesso via links, gestão desktop |
+| API            | Node.js + TypeScript | Lógica de negócio, autenticação, dados               |
+
+### 9.2 Mobile — Capacidades Necessárias
+
+- Notificações push (confirmações, promoção na lista de espera, convites, aprovações)
+- Deep links (abertura de eventos/comunidades por link externo)
+- Compartilhamento nativo (WhatsApp, outros apps)
+- Geração e leitura de QR code
+
+### 9.3 Web — Capacidades Necessárias
+
+- Página pública de evento acessível sem login
+- Responsivo para mobile browser
+- Suporte a deep links para redirecionar ao app quando instalado
+
+### 9.4 API
+
 - Autenticação via JWT + OAuth (Google, Apple)
-- Lógica de RSVP, lista de espera e notificações
-- Gestão de permissões por comunidade
+- Endpoints consumidos por mobile e web
+- Lógica de RSVP e promoção automática de waitlist
+- Gestão de permissões por contexto (evento e comunidade)
 
-## 6. Fora do Escopo — Versão Inicial
 
-Os itens abaixo são ideias de expansão previstas, mas não fazem parte do MVP:
+## 10. Questões em Aberto
 
-- Registro e discussão de leituras (livros)
-- Registro e discussão de filmes e séries
-- Geração de tópicos de discussão baseados em conteúdo consumido
-- Monetização, eventos pagos ou ingressos
-- Chat em tempo real dentro do app
-- Transmissão ao vivo de eventos
+Itens que precisam de decisão antes da implementação das respectivas features.
 
-## 7. Próximos Passos
+| #   | Questão                                                                  | Impacto                           | Status           |
+| --- | ------------------------------------------------------------------------ | --------------------------------- | ---------------- |
+| Q1  | REST vs GraphQL para a API?                                              | Arquitetura da API e dos clientes | `[em discussão]` |
+| Q2  | Estrutura do repositório: monorepo ou repos separados?                   | Setup inicial do projeto          | `[em discussão]` |
+| Q3  | Qual provedor de notificações push? (Firebase, OneSignal, etc.)          | Mobile                            | `[pendente]`     |
+| Q4  | Evento de comunidade pode ser visível publicamente (fora da comunidade)? | Regras de visibilidade            | `[em discussão]` |
+| Q5  | Preview de evento via link exige algum cadastro para confirmar presença? | Fluxo de conversão                | `[pendente]`     |
+| Q6  | Admin pode transferir ownership de comunidade?                           | Regras de governança              | `[pendente]`     |
+| Q7  | Múltiplos admins por comunidade são suportados no MVP?                   | Gestão de comunidade              | `[em discussão]` |
 
-Com o spec inicial definido, os próximos passos recomendados para o time são:
 
-- Definir a arquitetura de dados (modelagem das entidades: usuário, evento, comunidade, RSVP)
-- Criar wireframes das telas principais (criação de evento, feed, perfil, comunidade)
-- Definir estratégia de notificações (push + in-app)
-- Validar fluxo de autenticação e providers OAuth
-- Escolher formato de API (REST vs GraphQL) e estrutura do monorepo
-- Definir critérios de priorização para o MVP (quais funcionalidades entram primeiro)
+## 11. Fora do Escopo
 
----
+Features previstas para versões futuras. **Não devem ser implementadas no MVP.**
 
-_Migles — Spec v1.0 · Documento interno · Abril 2026_
+| Feature                                                    | Observação                          |
+| ---------------------------------------------------------- | ----------------------------------- |
+| Algoritmos de recomendação de comunidades/eventos          | Evolução futura                     |
+| Discovery geográfico ou por interesses                     | Evolução futura                     |
+| Monetização / eventos pagos / ingressos                    | Evolução futura                     |
+| Gamificação / social graph complexo                        | Evolução futura                     |
+| Feed/rede social avançada                                  | Evolução futura                     |
+| Chat em tempo real dentro do app                           | WhatsApp cobre esse papel           |
+| Transmissão ao vivo de eventos                             | Evolução futura                     |
+| Calendário externo / sincronização (Google Calendar, etc.) | Evolução futura                     |
+| Integração profunda com APIs do WhatsApp/Discord           | Evolução futura                     |
+| Sistema de ranking/popularidade                            | Evolução futura                     |
+| Registro e discussão de leituras, filmes e séries          | Evolução futura — produto adjacente |
