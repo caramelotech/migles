@@ -1,3 +1,5 @@
 packages:
   - 'api'
+  - 'mobile'
+  - 'web'
   - 'packages/*'

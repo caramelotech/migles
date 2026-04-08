@@ -1,14 +1,16 @@
 {
   "name": "migles",
   "private": true,
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "@prisma/client",
-      "@prisma/engines",
-      "esbuild",
-      "msgpackr-extract",
-      "prisma"
-    ]
+  "scripts": {
+    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "eslint": "latest",
+    "eslint-config-prettier": "latest",
+    "prettier": "latest",
+    "typescript": "latest",
+    "typescript-eslint": "latest"
   }
 }
