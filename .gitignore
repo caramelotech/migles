@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# prisma
+prisma/migrations/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# os
+.DS_Store
+Thumbs.db
+
+# test coverage
+coverage/
