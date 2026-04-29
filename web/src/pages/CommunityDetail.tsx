@@ -303,9 +303,9 @@ export function CommunityDetail() {
             />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {filtered.map((m, i) => (
+            {filtered.map(m => (
               <Card
-                key={i}
+                key={m.initials}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}
               >
                 <Avatar initials={m.initials} color={m.color} size={38} />

@@ -3,6 +3,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useEvents } from '../context/EventsContext'
 import { SectionLabel } from '../components/ui/SectionLabel'
 import { EventCard } from '../components/features/EventCard'
+import { CalendarIcon, SearchIcon } from '../components/ui/icons'
 
 export function Home() {
   const { theme: T } = useTheme()
@@ -14,8 +15,9 @@ export function Home() {
   const pending = events.filter(e => e.myRsvp === 'pending')
   const others = events.filter(e => e.myRsvp === 'declined' || e.myRsvp === 'waitlisted')
 
+  const q = search.trim().toLowerCase()
   const filtered = (list: typeof events) =>
-    search.trim() ? list.filter(e => e.title.toLowerCase().includes(search.toLowerCase())) : list
+    q ? list.filter(e => e.title.toLowerCase().includes(q)) : list
 
   return (
     <div className="fade-up" style={{ padding: '28px 24px', maxWidth: 720, margin: '0 auto' }}>
@@ -25,7 +27,7 @@ export function Home() {
         </div>
 
         <div style={{ position: 'relative', marginBottom: 14 }}>
-          <svg
+          <span
             style={{
               position: 'absolute',
               left: 14,
@@ -33,19 +35,11 @@ export function Home() {
               transform: 'translateY(-50%)',
               color: T.text3,
               pointerEvents: 'none',
+              display: 'flex',
             }}
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+            <SearchIcon />
+          </span>
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -83,21 +77,7 @@ export function Home() {
               transition: 'all 0.15s',
             }}
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+            <CalendarIcon />
             Próximos
           </button>
           <button

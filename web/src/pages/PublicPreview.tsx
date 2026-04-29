@@ -230,7 +230,7 @@ export function PublicPreview() {
                   userSelect: 'none',
                 }}
               >
-                {[...event.attendees, ...event.attendees].slice(0, 8).map((a, i) => (
+                {event.attendees.slice(0, 8).map((a, i) => (
                   <div
                     key={i}
                     style={{

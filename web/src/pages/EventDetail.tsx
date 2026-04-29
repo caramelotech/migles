@@ -32,18 +32,25 @@ export function EventDetail() {
       </div>
     )
 
-  const ev = event
-  const isFull = ev.capacity != null && ev.rsvpCount >= ev.capacity
-  const pct = ev.capacity ? Math.min(100, (ev.rsvpCount / ev.capacity) * 100) : 0
+  const isFull = event.capacity != null && event.rsvpCount >= event.capacity
+  const pct = event.capacity ? Math.min(100, (event.rsvpCount / event.capacity) * 100) : 0
   const barColor = pct >= 95 ? T.red : T.accent
 
+  const infoLabel: React.CSSProperties = {
+    fontSize: 11,
+    color: T.text3,
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.07em',
+  }
+
   function rsvp(s: RsvpStatus) {
-    updateRsvp(ev.id, s)
+    updateRsvp(event.id, s)
   }
 
   function submitComment() {
     if (!newComment.trim()) return
-    addComment(ev.id, newComment.trim(), null)
+    addComment(event.id, newComment.trim(), null)
     setNewComment('')
   }
 
@@ -75,16 +82,16 @@ export function EventDetail() {
         >
           <ArrowLeftIcon /> Voltar
         </button>
-        <Button variant="ghost" sz="sm" onClick={() => navigate(`/events/${ev.id}/preview`)}>
+        <Button variant="ghost" sz="sm" onClick={() => navigate(`/events/${event.id}/preview`)}>
           <LinkIcon /> Preview público
         </Button>
       </div>
 
       {/* Cover image */}
-      {ev.coverImage && (
+      {event.coverImage && (
         <div style={{ height: 220, borderRadius: 14, overflow: 'hidden', marginBottom: 22 }}>
           <img
-            src={ev.coverImage}
+            src={event.coverImage}
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
@@ -104,11 +111,11 @@ export function EventDetail() {
               fontWeight: 500,
             }}
           >
-            {ev.community.name}
+            {event.community.name}
           </span>
           <span style={{ fontSize: 12, color: T.text3 }}>·</span>
           <span style={{ fontSize: 12, color: T.text3 }}>
-            {ev.dateLabel} às {ev.time}
+            {event.dateLabel} às {event.time}
           </span>
         </div>
         <h1
@@ -120,12 +127,12 @@ export function EventDetail() {
             color: T.text,
           }}
         >
-          {ev.title}
+          {event.title}
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Avatar initials={ev.organizer.initials} color={ev.organizer.color} size={26} />
+          <Avatar initials={event.organizer.initials} color={event.organizer.color} size={26} />
           <span style={{ fontSize: 13, color: T.text2 }}>
-            por <span style={{ color: T.text }}>{ev.organizer.name}</span>
+            por <span style={{ color: T.text }}>{event.organizer.name}</span>
           </span>
         </div>
       </div>
@@ -134,50 +141,23 @@ export function EventDetail() {
       <Card style={{ marginBottom: 14 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
-            <div
-              style={{
-                fontSize: 11,
-                color: T.text3,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.07em',
-                marginBottom: 5,
-              }}
-            >
+            <div style={{ ...infoLabel, marginBottom: 5 }}>
               Data e hora
             </div>
             <div style={{ fontSize: 14, color: T.text }}>
-              {ev.dateLabel} · {ev.time}
+              {event.dateLabel} · {event.time}
             </div>
           </div>
           <div>
-            <div
-              style={{
-                fontSize: 11,
-                color: T.text3,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.07em',
-                marginBottom: 5,
-              }}
-            >
+            <div style={{ ...infoLabel, marginBottom: 5 }}>
               Local
             </div>
-            <div style={{ fontSize: 14, color: T.text }}>{ev.location}</div>
+            <div style={{ fontSize: 14, color: T.text }}>{event.location}</div>
           </div>
-          {ev.capacity != null && (
+          {event.capacity != null && (
             <>
               <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: T.text3,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.07em',
-                    marginBottom: 5,
-                  }}
-                >
+                <div style={{ ...infoLabel, marginBottom: 5 }}>
                   Vagas
                 </div>
                 <div
@@ -189,8 +169,8 @@ export function EventDetail() {
                     gap: 8,
                   }}
                 >
-                  {ev.rsvpCount}/{ev.capacity}
-                  {ev.waitlistCount > 0 && (
+                  {event.rsvpCount}/{event.capacity}
+                  {event.waitlistCount > 0 && (
                     <span
                       style={{
                         fontSize: 12,
@@ -200,22 +180,13 @@ export function EventDetail() {
                         borderRadius: 20,
                       }}
                     >
-                      +{ev.waitlistCount} na fila
+                      +{event.waitlistCount} na fila
                     </span>
                   )}
                 </div>
               </div>
               <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: T.text3,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.07em',
-                    marginBottom: 8,
-                  }}
-                >
+                <div style={{ ...infoLabel, marginBottom: 8 }}>
                   Ocupação
                 </div>
                 <div style={{ height: 6, background: T.s3, borderRadius: 3, overflow: 'hidden' }}>
@@ -245,18 +216,18 @@ export function EventDetail() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <Button
-            variant={ev.myRsvp === 'confirmed' ? 'success' : 'ghost'}
-            onClick={() => rsvp(ev.myRsvp === 'confirmed' ? 'pending' : 'confirmed')}
+            variant={event.myRsvp === 'confirmed' ? 'success' : 'ghost'}
+            onClick={() => rsvp(event.myRsvp === 'confirmed' ? 'pending' : 'confirmed')}
           >
-            {ev.myRsvp === 'confirmed' ? '✓ Confirmado' : 'Confirmar presença'}
+            {event.myRsvp === 'confirmed' ? '✓ Confirmado' : 'Confirmar presença'}
           </Button>
           <Button
-            variant={ev.myRsvp === 'declined' ? 'danger' : 'ghost'}
-            onClick={() => rsvp(ev.myRsvp === 'declined' ? 'pending' : 'declined')}
+            variant={event.myRsvp === 'declined' ? 'danger' : 'ghost'}
+            onClick={() => rsvp(event.myRsvp === 'declined' ? 'pending' : 'declined')}
           >
-            {ev.myRsvp === 'declined' ? '✕ Recusado' : 'Recusar'}
+            {event.myRsvp === 'declined' ? '✕ Recusado' : 'Recusar'}
           </Button>
-          {isFull && ev.myRsvp === 'pending' && (
+          {isFull && event.myRsvp === 'pending' && (
             <span
               style={{
                 fontSize: 12,
@@ -270,7 +241,7 @@ export function EventDetail() {
             </span>
           )}
           <div style={{ marginLeft: 'auto' }}>
-            <RsvpPill status={ev.myRsvp} />
+            <RsvpPill status={event.myRsvp} />
           </div>
         </div>
       </Card>
@@ -286,7 +257,7 @@ export function EventDetail() {
           }}
         >
           <div style={{ fontSize: 13, color: T.text2, fontWeight: 500 }}>
-            Confirmados ({ev.rsvpCount})
+            Confirmados ({event.rsvpCount})
           </div>
           <button
             onClick={() => setAttendeesExpanded(e => !e)}
@@ -311,9 +282,9 @@ export function EventDetail() {
 
         {!attendeesExpanded && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {ev.attendees.map((a, i) => (
+            {event.attendees.map(a => (
               <div
-                key={i}
+                key={a.initials}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -328,7 +299,7 @@ export function EventDetail() {
                 <span style={{ fontSize: 12, color: T.text }}>{a.initials}</span>
               </div>
             ))}
-            {ev.rsvpCount > ev.attendees.length && (
+            {event.rsvpCount > event.attendees.length && (
               <div
                 style={{
                   display: 'flex',
@@ -341,7 +312,7 @@ export function EventDetail() {
                   border: `1px solid ${T.border}`,
                 }}
               >
-                +{ev.rsvpCount - ev.attendees.length} mais
+                +{event.rsvpCount - event.attendees.length} mais
               </div>
             )}
           </div>
@@ -349,9 +320,9 @@ export function EventDetail() {
 
         {attendeesExpanded && (
           <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {ev.attendees.map((a, i) => (
+            {event.attendees.map((a, i) => (
               <div
-                key={i}
+                key={a.initials}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -370,7 +341,7 @@ export function EventDetail() {
                     <div style={{ fontSize: 11, color: T.accent }}>Você</div>
                   )}
                 </div>
-                {a.initials === ev.organizer.initials && (
+                {a.initials === event.organizer.initials && (
                   <span
                     style={{
                       fontSize: 11,
@@ -385,7 +356,7 @@ export function EventDetail() {
                 )}
               </div>
             ))}
-            {ev.rsvpCount > ev.attendees.length && (
+            {event.rsvpCount > event.attendees.length && (
               <div
                 style={{
                   textAlign: 'center',
@@ -396,7 +367,7 @@ export function EventDetail() {
                   marginTop: 4,
                 }}
               >
-                +{ev.rsvpCount - ev.attendees.length} confirmados não exibidos
+                +{event.rsvpCount - event.attendees.length} confirmados não exibidos
               </div>
             )}
           </div>
@@ -404,31 +375,31 @@ export function EventDetail() {
       </Card>
 
       {/* Description */}
-      {ev.description && (
+      {event.description && (
         <Card style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 13, color: T.text2, fontWeight: 500, marginBottom: 8 }}>
             Sobre
           </div>
-          <div style={{ fontSize: 14, color: T.text, lineHeight: 1.75 }}>{ev.description}</div>
+          <div style={{ fontSize: 14, color: T.text, lineHeight: 1.75 }}>{event.description}</div>
         </Card>
       )}
 
       {/* Comments */}
       <Card>
         <div style={{ fontSize: 13, color: T.text2, fontWeight: 500, marginBottom: 18 }}>
-          Comentários ({ev.comments.length})
+          Comentários ({event.comments.length})
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}>
-          {ev.comments.length === 0 && (
+          {event.comments.length === 0 && (
             <div style={{ fontSize: 14, color: T.text3, textAlign: 'center', padding: '10px 0' }}>
               Nenhum comentário ainda. Seja o primeiro!
             </div>
           )}
-          {ev.comments.map(c => (
+          {event.comments.map(c => (
             <CommentThread
               key={c.id}
               comment={c}
-              onReply={(cid, txt) => addComment(ev.id, txt, cid)}
+              onReply={(cid, txt) => addComment(event.id, txt, cid)}
             />
           ))}
         </div>

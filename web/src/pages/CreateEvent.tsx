@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { COMMUNITIES } from '../data/mock'
@@ -175,6 +175,12 @@ export function CreateEvent() {
   const [errors, setErrors] = useState<Errors>({})
   const [done, setDone] = useState(false)
 
+  useEffect(() => {
+    if (!done) return
+    const id = setTimeout(() => navigate('/'), 1800)
+    return () => clearTimeout(id)
+  }, [done, navigate])
+
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: T.s2,
@@ -205,7 +211,6 @@ export function CreateEvent() {
   function submit() {
     if (!validate()) return
     setDone(true)
-    setTimeout(() => navigate('/'), 1800)
   }
 
   if (done)
