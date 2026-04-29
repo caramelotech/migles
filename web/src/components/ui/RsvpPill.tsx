@@ -5,9 +5,9 @@ export function RsvpPill({ status }: { status: RsvpStatus }) {
   const { theme: T } = useTheme()
 
   const map: Record<RsvpStatus, [string, string, string]> = {
-    confirmed:  [T.green,  T.greenDim,  'Confirmado'],
-    declined:   [T.red,    T.redDim,    'Recusado'],
-    pending:    [T.amber,  T.amberDim,  'Pendente'],
+    confirmed: [T.green, T.greenDim, 'Confirmado'],
+    declined: [T.red, T.redDim, 'Recusado'],
+    pending: [T.amber, T.amberDim, 'Pendente'],
     waitlisted: [T.accent, T.accentDim, 'Na fila'],
   }
 
@@ -28,7 +28,15 @@ export function RsvpPill({ status }: { status: RsvpStatus }) {
         flexShrink: 0,
       }}
     >
-      <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, display: 'inline-block' }} />
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: color,
+          display: 'inline-block',
+        }}
+      />
       {label}
     </span>
   )

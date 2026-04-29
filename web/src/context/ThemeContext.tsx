@@ -30,12 +30,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       document.head.appendChild(style)
     }
     style.textContent = isDark
-      ? `input::placeholder,textarea::placeholder{color:#4a4760}
-         ::-webkit-scrollbar-thumb{background:#2a2a35}
+      ? `input::placeholder,textarea::placeholder{color:#7a7470}
+         ::-webkit-scrollbar-thumb{background:#2e2c29}
          input[type="date"]::-webkit-calendar-picker-indicator,
          input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0.5)}`
-      : `input::placeholder,textarea::placeholder{color:#b0a8c8}
-         ::-webkit-scrollbar-thumb{background:#d4cff0}
+      : `input::placeholder,textarea::placeholder{color:#9a9080}
+         ::-webkit-scrollbar-thumb{background:#d4ccc0}
          input[type="date"]::-webkit-calendar-picker-indicator,
          input[type="time"]::-webkit-calendar-picker-indicator{filter:none}`
   }, [theme, isDark])

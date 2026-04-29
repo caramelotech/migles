@@ -6,9 +6,9 @@ type Props = {
   size?: number
 }
 
-export function Avatar({ initials, color, size = 36 }: Props) {
+export function Avatar({ initials, size = 36 }: Props) {
   const { theme } = useTheme()
-  const c = color ?? theme.accent
+  const c = theme.accent
   return (
     <div
       style={{

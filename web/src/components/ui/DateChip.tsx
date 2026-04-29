@@ -5,9 +5,9 @@ type Props = {
   color?: string
 }
 
-export function DateChip({ dateLabel, color }: Props) {
+export function DateChip({ dateLabel }: Props) {
   const { theme: T } = useTheme()
-  const c = color ?? T.accent
+  const c = T.accent
   const parts = dateLabel.split(' ')
   const weekday = parts[0].replace(',', '')
   const day = parts[1]
@@ -25,8 +25,28 @@ export function DateChip({ dateLabel, color }: Props) {
         flexShrink: 0,
       }}
     >
-      <div style={{ fontSize: 10, color: c, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{month}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: c, lineHeight: 1.1, fontFamily: 'DM Serif Display, serif' }}>{day}</div>
+      <div
+        style={{
+          fontSize: 10,
+          color: c,
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+        }}
+      >
+        {month}
+      </div>
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 700,
+          color: c,
+          lineHeight: 1.1,
+          fontFamily: 'DM Serif Display, serif',
+        }}
+      >
+        {day}
+      </div>
       <div style={{ fontSize: 10, color: c + '99' }}>{weekday}</div>
     </div>
   )

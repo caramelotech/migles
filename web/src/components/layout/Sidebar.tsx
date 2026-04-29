@@ -7,9 +7,9 @@ import { HomeIcon, PlusIcon, PersonIcon } from '../ui/icons'
 import { COMMUNITIES } from '../../data/mock'
 
 const NAV_ITEMS = [
-  { path: '/',           label: 'Início', Icon: HomeIcon  },
-  { path: '/events/new', label: 'Criar',  Icon: PlusIcon  },
-  { path: '/profile',    label: 'Perfil', Icon: PersonIcon },
+  { path: '/', label: 'Início', Icon: HomeIcon },
+  { path: '/events/new', label: 'Criar', Icon: PlusIcon },
+  { path: '/profile', label: 'Perfil', Icon: PersonIcon },
 ]
 
 type Props = {
@@ -23,7 +23,11 @@ export function Sidebar({ isDark, onToggleTheme }: Props) {
   const location = useLocation()
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/' || (location.pathname.startsWith('/events/') && location.pathname !== '/events/new')
+    if (path === '/')
+      return (
+        location.pathname === '/' ||
+        (location.pathname.startsWith('/events/') && location.pathname !== '/events/new')
+      )
     return location.pathname.startsWith(path)
   }
 
@@ -43,9 +47,13 @@ export function Sidebar({ isDark, onToggleTheme }: Props) {
         transition: 'background 0.25s, border-color 0.25s',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 28, paddingLeft: 6 }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 28, paddingLeft: 6 }}
+      >
         <Logo size={28} />
-        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.02em', color: T.text }}>migles</span>
+        <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: '-0.02em', color: T.text }}>
+          migles
+        </span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -80,17 +88,49 @@ export function Sidebar({ isDark, onToggleTheme }: Props) {
         })}
       </div>
 
-      <div style={{ marginTop: 'auto', borderTop: `1px solid ${T.border}`, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div
+        style={{
+          marginTop: 'auto',
+          borderTop: `1px solid ${T.border}`,
+          paddingTop: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
         <div>
           <SectionLabel>Comunidades</SectionLabel>
           {COMMUNITIES.map(c => (
             <div
               key={c.id}
               onClick={() => navigate(`/communities/${c.id}`)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 8, cursor: 'pointer' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 12px',
+                borderRadius: 8,
+                cursor: 'pointer',
+              }}
             >
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: c.color, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: T.text3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: T.accent,
+                  flexShrink: 0,
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 13,
+                  color: T.text3,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {c.name}
               </span>
             </div>

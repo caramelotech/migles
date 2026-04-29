@@ -15,7 +15,14 @@ export function AppLayout() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: T.bg, transition: 'background 0.25s' }}>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: T.bg,
+        transition: 'background 0.25s',
+      }}
+    >
       {!isMobile && <Sidebar isDark={isDark} onToggleTheme={toggleTheme} />}
       <main style={{ flex: 1, overflowY: 'auto', paddingBottom: isMobile ? 72 : 0 }}>
         <Outlet />

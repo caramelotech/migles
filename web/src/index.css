@@ -31,8 +31,9 @@ input, textarea, button, select {
 }
 
 input:focus, textarea:focus {
+  border-color: rgba(249, 115, 22, 0.5) !important;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(155, 135, 245, 0.08);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
 }
 
 @keyframes fadeUp {

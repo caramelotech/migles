@@ -38,3 +38,5 @@ coverage/
 
 # Claude
 .claude/
+
+bash.exe.stackdump

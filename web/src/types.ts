@@ -3,6 +3,7 @@ export type RsvpStatus = 'pending' | 'confirmed' | 'declined' | 'waitlisted'
 export type Attendee = {
   initials: string
   color: string
+  name?: string
 }
 
 export type CommentReply = {
@@ -54,6 +55,7 @@ export type Event = {
   organizer: { name: string; initials: string; color: string }
   attendees: Attendee[]
   comments: Comment[]
+  coverImage?: string
 }
 
 export type Me = {

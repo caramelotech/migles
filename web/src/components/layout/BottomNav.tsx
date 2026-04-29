@@ -4,9 +4,9 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 import { HomeIcon, PlusIcon, PersonIcon } from '../ui/icons'
 
 const NAV_ITEMS = [
-  { path: '/',           label: 'Início', Icon: HomeIcon  },
-  { path: '/events/new', label: 'Criar',  Icon: PlusIcon  },
-  { path: '/profile',    label: 'Perfil', Icon: PersonIcon },
+  { path: '/', label: 'Início', Icon: HomeIcon },
+  { path: '/events/new', label: 'Criar', Icon: PlusIcon },
+  { path: '/profile', label: 'Perfil', Icon: PersonIcon },
 ]
 
 type Props = {
@@ -20,7 +20,11 @@ export function BottomNav({ isDark, onToggleTheme }: Props) {
   const location = useLocation()
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/' || (location.pathname.startsWith('/events/') && location.pathname !== '/events/new')
+    if (path === '/')
+      return (
+        location.pathname === '/' ||
+        (location.pathname.startsWith('/events/') && location.pathname !== '/events/new')
+      )
     return location.pathname.startsWith(path)
   }
 
