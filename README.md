@@ -12,13 +12,14 @@ Monorepo com pnpm workspaces:
 migles/
 ├── api/       - Backend com NestJS
 ├── mobile/    - App nativo com React Native
-├── web/       - Web com React
+├── web/       - Web com React (GitHub Pages temporariamente)
 └── packages/  - Pacotes compartilhados
 ```
 
 ## 🛠️ Stack de Tecnologia
 
 ### Backend (`api/`)
+
 - **Framework:** NestJS
 - **Linguagem:** TypeScript (strict mode)
 - **ORM:** Prisma
@@ -27,63 +28,100 @@ migles/
 - **Queue:** BullMQ + Redis
 - **Testes:** Vitest
 
-### Frontend
-- **Mobile:** React Native
-- **Web:** React
+### Frontend Web (`web/`)
+
+- **Framework:** React 18 + Vite
+- **Linguagem:** TypeScript (strict mode)
+- **Roteamento:** React Router DOM v6 (HashRouter)
+- **Deploy:** GitHub Pages — https://caramelotech.github.io/migles/
+
+### Frontend Mobile (`mobile/`)
+
+- **Framework:** React Native
 
 ## 🚀 Primeiros Passos
 
-### Configuração do Backend
+### Pré-requisitos
+
+```bash
+npm install -g pnpm   # gerenciador de pacotes do monorepo
+```
+
+### Instalar todas as dependências
+
+```bash
+# a partir da raiz do projeto
+pnpm install
+```
+
+---
+
+### Backend (`api/`)
 
 1. Copie o arquivo de ambiente:
+
 ```bash
 cp api/.env.example api/.env
 ```
 
-2. Preencha as variáveis obrigatórias:
-   - `DATABASE_URL` - conexão PostgreSQL
-   - `JWT_SECRET` - chave para JWT
-   - `REDIS_URL` - conexão Redis
+2. Preencha as variáveis obrigatórias em `api/.env`:
+   - `DATABASE_URL` — conexão PostgreSQL
+   - `JWT_SECRET` — chave para JWT
+   - `REDIS_URL` — conexão Redis
    - Credenciais OAuth (Google, Apple)
 
-3. Instale dependências e inicie o desenvolvimento:
-```bash
-# a partir da raiz do projeto
-pnpm install
-pnpm -F=api dev
-```
-
-### Comandos do Backend
-
-Execute dentro de `api/`:
+3. Inicie o desenvolvimento:
 
 ```bash
-pnpm dev              # inicia com watch mode
-pnpm build            # compila
-pnpm test             # executa testes com Vitest
-pnpm test:coverage    # relatório de cobertura
-pnpm db:migrate       # Prisma migrate dev
-pnpm db:generate      # regenera Prisma client
-pnpm db:studio        # abre Prisma Studio
-pnpm db:seed          # seed com dados iniciais
+pnpm api:dev
+# ou dentro de api/: pnpm dev
 ```
+
+#### Comandos do backend (dentro de `api/`)
+
+| Comando              | Descrição                 |
+| -------------------- | ------------------------- |
+| `pnpm dev`           | Inicia com watch mode     |
+| `pnpm build`         | Compila                   |
+| `pnpm test`          | Executa testes com Vitest |
+| `pnpm test:coverage` | Relatório de cobertura    |
+| `pnpm db:migrate`    | Prisma migrate dev        |
+| `pnpm db:generate`   | Regenera Prisma client    |
+| `pnpm db:studio`     | Abre Prisma Studio        |
+| `pnpm db:seed`       | Seed com dados iniciais   |
+
+---
+
+### Web (`web/`)
+
+```bash
+pnpm web:dev      # servidor de desenvolvimento em localhost:5173
+pnpm web:build    # build de produção
+pnpm web:preview  # preview do build local
+```
+
+O deploy para GitHub Pages acontece automaticamente via GitHub Actions quando há push na branch `main` com alterações em `web/`. Também pode ser disparado manualmente em **Actions → Deploy web to GitHub Pages → Run workflow**.
+
+> Para ativar o deploy pela primeira vez: **Settings → Pages → Source → GitHub Actions**
+
+---
 
 ## 📋 Estrutura de Módulos
 
 Os módulos do backend (`api/src/modules/`) seguem o padrão:
 
-- `auth` - Autenticação e estratégias OAuth
-- `users` - Gerenciamento de usuários
-- `events` - Gestão de eventos
-- `communities` - Gerenciamento de comunidades
-- `rsvp` - Sistema de confirmação de presença
-- `comments` - Comentários em eventos
+- `auth` — Autenticação e estratégias OAuth
+- `users` — Gerenciamento de usuários
+- `events` — Gestão de eventos
+- `communities` — Gerenciamento de comunidades
+- `rsvp` — Sistema de confirmação de presença
+- `comments` — Comentários em eventos
 
 Cada módulo possui: controller, service, repository, schema Zod e types.
 
 ## 🎯 Regras de Domínio
 
-- Um evento deve ter **at least um organizador**
+- Um evento deve ter **pelo menos um organizador**
 - Promoção automática de waitlist (FIFO) quando confirmado cancela
 - Estados RSVP: `pending` → `confirmed` | `declined` | `waitlisted`
 - Visibilidade: `PRIVATE` (só convidados) ou `COMMUNITY` (membros da comunidade)
@@ -92,9 +130,15 @@ Cada módulo possui: controller, service, repository, schema Zod e types.
 
 ## 📖 Especificações
 
-Todas as decisões de produto e arquitetura estão documentadas em `specs/spec-v1.md`.
+Todas as decisões de produto e arquitetura estão documentadas em `specs/`:
 
-Para mudanças no produto, atualize a spec ANTES de implementar.
+| Arquivo                  | Conteúdo                                    |
+| ------------------------ | ------------------------------------------- |
+| `specs/spec-v1.md`       | Especificação de produto v1                 |
+| `specs/backend.md`       | Spec e prompt de setup do backend           |
+| `specs/design-system.md` | Sistema de design (tokens, componentes, DS) |
+
+Para mudanças no produto, atualize a spec **antes** de implementar.
 
 ## 📝 Licença
 

@@ -2,6 +2,12 @@
   "name": "migles",
   "private": true,
   "scripts": {
+    "web:dev": "pnpm --filter @migles/web dev",
+    "web:build": "pnpm --filter @migles/web build",
+    "web:preview": "pnpm --filter @migles/web preview",
+    "api:dev": "pnpm --filter @migles/api dev",
+    "api:build": "pnpm --filter @migles/api build",
+    "api:test": "pnpm --filter @migles/api test",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""

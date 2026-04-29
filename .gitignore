@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 
+# vite cache
+.vite/
+
 # environment
 .env
 .env.local
@@ -32,3 +35,6 @@ Thumbs.db
 
 # test coverage
 coverage/
+
+# Claude
+.claude/
