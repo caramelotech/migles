@@ -28,11 +28,13 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           ...e,
           myRsvp: status,
           rsvpCount:
-            nowConfirmed && !wasConfirmed ? e.rsvpCount + 1
-            : !nowConfirmed && wasConfirmed ? e.rsvpCount - 1
-            : e.rsvpCount,
+            nowConfirmed && !wasConfirmed
+              ? e.rsvpCount + 1
+              : !nowConfirmed && wasConfirmed
+                ? e.rsvpCount - 1
+                : e.rsvpCount,
         }
-      })
+      }),
     )
   }
 
@@ -44,7 +46,14 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       color: ME.color,
       text,
       time: 'agora',
-      replies: [] as { id: string; author: string; initials: string; color: string; text: string; time: string }[],
+      replies: [] as {
+        id: string
+        author: string
+        initials: string
+        color: string
+        text: string
+        time: string
+      }[],
     }
 
     setEvents(evs =>
@@ -54,12 +63,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         return {
           ...e,
           comments: e.comments.map(c =>
-            c.id !== replyToId
-              ? c
-              : { ...c, replies: [...(c.replies ?? []), { ...newEntry }] }
+            c.id !== replyToId ? c : { ...c, replies: [...(c.replies ?? []), { ...newEntry }] },
           ),
         }
-      })
+      }),
     )
   }
 

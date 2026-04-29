@@ -11,7 +11,6 @@
 | Time   | 2–4 pessoas                                 |
 | Stack  | React Native · React · Node.js + TypeScript |
 
-
 ## Índice
 
 1. [Visão do Produto](#1-visão-do-produto)
@@ -27,7 +26,6 @@
 11. [Fora do Escopo](#11-fora-do-escopo)
 12. [Histórico de Mudanças](#12-histórico-de-mudanças)
 
-
 ## 1. Visão do Produto
 
 **Migles** é uma plataforma multiplataforma (mobile + web) para organização e gerenciamento de eventos sociais entre amigos e comunidades.
@@ -40,7 +38,6 @@ O produto centraliza a coordenação de encontros — controle de presença, lim
 
 Tornar-se a principal plataforma para organização e descoberta de eventos sociais e comunitários, facilitando tanto encontros privados quanto a descoberta de novas comunidades e experiências.
 
-
 ## 2. Problema
 
 Organizar eventos sociais informalmente é fragmentado e pouco eficiente:
@@ -50,7 +47,6 @@ Organizar eventos sociais informalmente é fragmentado e pouco eficiente:
 - Controle de limite de vagas e lista de espera é inexistente ou feito à mão
 - Comunidades não têm ferramentas para divulgar e gerenciar seus próprios eventos
 - Discussões importantes sobre o evento se perdem no histórico de chats
-
 
 ## 3. Público-alvo
 
@@ -68,7 +64,6 @@ Pessoas que organizam ou participam frequentemente de:
 ### Usuário secundário
 
 Organizadores e moderadores de comunidades que precisam de ferramentas de gestão de membros e eventos.
-
 
 ## 4. Filosofia e Princípios
 
@@ -90,7 +85,6 @@ O Migles não compete com WhatsApp ou outros mensageiros. Ele se integra a eles 
 
 Discovery inteligente, recomendações algorítmicas e social graph complexo são evoluções futuras. O MVP prioriza o fluxo core: criar evento → convidar → confirmar presença → gerenciar.
 
-
 ## 5. Escopo do MVP
 
 ### Incluído
@@ -103,7 +97,6 @@ Discovery inteligente, recomendações algorítmicas e social graph complexo sã
 ### Explicitamente fora do MVP
 
 Ver seção [11. Fora do Escopo](#11-fora-do-escopo).
-
 
 ## 6. Domínios e Entidades
 
@@ -172,7 +165,6 @@ Agrupa usuários com interesses comuns e centraliza seus eventos.
 Interação textual vinculada a um evento. Suporta threads (respostas aninhadas).
 
 **Visibilidade:** segue as regras do evento ao qual pertence (ver seção 8.3).
-
 
 ## 7. Requisitos Funcionais
 
@@ -256,7 +248,6 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 - [ ] Compartilhamento viral por links (evento e comunidade)
 - [ ] Preview público de evento acessível sem login (via web)
 
-
 ## 8. Regras de Negócio
 
 ### 8.1 Ownership de Evento
@@ -294,7 +285,6 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 - Usuário banido de uma comunidade não pode reingressar por nenhum mecanismo (link, busca ou convite)
 - Denúncias são recebidas pelos admins da comunidade; não há moderação centralizada no MVP
 
-
 ## 9. Requisitos Não-Funcionais
 
 ### 9.1 Plataformas
@@ -326,7 +316,6 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 - Lógica de RSVP e promoção automática de waitlist
 - Gestão de permissões por contexto (evento e comunidade)
 
-
 ## 10. Questões em Aberto
 
 Itens que precisam de decisão antes da implementação das respectivas features.
@@ -340,7 +329,6 @@ Itens que precisam de decisão antes da implementação das respectivas features
 | Q5  | Preview de evento via link exige algum cadastro para confirmar presença? | Fluxo de conversão                | `[pendente]`     |
 | Q6  | Admin pode transferir ownership de comunidade?                           | Regras de governança              | `[pendente]`     |
 | Q7  | Múltiplos admins por comunidade são suportados no MVP?                   | Gestão de comunidade              | `[em discussão]` |
-
 
 ## 11. Fora do Escopo
 

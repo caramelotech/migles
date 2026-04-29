@@ -46,6 +46,7 @@ pnpm db:seed          # run prisma/seed.ts
 **Shared** (`api/src/shared/`): `database` (Prisma service), `queue` (BullMQ workers for waitlist promotion and notifications), `guards`, `decorators`, `utils`.
 
 **Key domain rules:**
+
 - An event must always have at least one organizer
 - Waitlist promotion is automatic (FIFO) when a confirmed participant cancels
 - RSVP states: `pending` → `confirmed` | `declined` | `waitlisted`
@@ -58,6 +59,7 @@ pnpm db:seed          # run prisma/seed.ts
 ## Open architectural decisions
 
 See `specs/spec-v1.md` section 10 for open questions, notably:
+
 - REST vs GraphQL (Q1) - not yet decided
 - Monorepo vs separate repos (Q2) - decided: monorepo
 - Push notification provider (Q3) - pending

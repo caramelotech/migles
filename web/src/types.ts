@@ -3,6 +3,7 @@ export type RsvpStatus = 'pending' | 'confirmed' | 'declined' | 'waitlisted'
 export type Attendee = {
   initials: string
   color: string
+  name?: string
 }
 
 export type CommentReply = {

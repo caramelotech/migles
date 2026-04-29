@@ -16,7 +16,21 @@ type Props = {
   disabled?: boolean
 }
 
-export function Field({ label, value, onChange, placeholder, type = 'text', textarea, required, error, hint, min, max, rows = 3, disabled }: Props) {
+export function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = 'text',
+  textarea,
+  required,
+  error,
+  hint,
+  min,
+  max,
+  rows = 3,
+  disabled,
+}: Props) {
   const { theme: T } = useTheme()
 
   const inputStyle = {

@@ -29,16 +29,35 @@ export function CommentThread({ comment, onReply }: Props) {
           <span style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{comment.author}</span>
           <span style={{ fontSize: 12, color: T.text3 }}>{comment.time}</span>
         </div>
-        <div style={{ fontSize: 14, color: T.text, lineHeight: 1.65, marginBottom: 8 }}>{comment.text}</div>
+        <div style={{ fontSize: 14, color: T.text, lineHeight: 1.65, marginBottom: 8 }}>
+          {comment.text}
+        </div>
         <button
           onClick={() => setOpen(!open)}
-          style={{ background: 'none', border: 'none', color: T.text3, fontSize: 12, cursor: 'pointer', padding: 0, fontFamily: 'DM Sans' }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: T.text3,
+            fontSize: 12,
+            cursor: 'pointer',
+            padding: 0,
+            fontFamily: 'DM Sans',
+          }}
         >
           ↩ Responder
         </button>
 
         {comment.replies && comment.replies.length > 0 && (
-          <div style={{ marginTop: 12, paddingLeft: 14, borderLeft: `2px solid ${T.border}`, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div
+            style={{
+              marginTop: 12,
+              paddingLeft: 14,
+              borderLeft: `2px solid ${T.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
             {comment.replies.map(r => (
               <div key={r.id} style={{ display: 'flex', gap: 8 }}>
                 <Avatar initials={r.initials} color={r.color} size={26} />
@@ -55,7 +74,10 @@ export function CommentThread({ comment, onReply }: Props) {
         )}
 
         {open && (
-          <div className="fade-in" style={{ display: 'flex', gap: 8, marginTop: 10, alignItems: 'center' }}>
+          <div
+            className="fade-in"
+            style={{ display: 'flex', gap: 8, marginTop: 10, alignItems: 'center' }}
+          >
             <input
               value={text}
               onChange={e => setText(e.target.value)}
@@ -74,7 +96,9 @@ export function CommentThread({ comment, onReply }: Props) {
                 outline: 'none',
               }}
             />
-            <Button sz="sm" onClick={submit} disabled={!text.trim()}>Enviar</Button>
+            <Button sz="sm" onClick={submit} disabled={!text.trim()}>
+              Enviar
+            </Button>
           </div>
         )}
       </div>
