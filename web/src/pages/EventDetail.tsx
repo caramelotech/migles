@@ -45,12 +45,12 @@ export function EventDetail() {
   }
 
   function rsvp(s: RsvpStatus) {
-    updateRsvp(event.id, s)
+    updateRsvp(event!.id, s)
   }
 
   function submitComment() {
     if (!newComment.trim()) return
-    addComment(event.id, newComment.trim(), null)
+    addComment(event!.id, newComment.trim(), null)
     setNewComment('')
   }
 
