@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(npx tsc *)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(npx vite *)",
+      "Bash(sed -i 's/maxWidth: 680, margin: .0 auto., padding: .28px 24px./maxWidth: 720, margin: '\"'\"'0 auto'\"'\"', padding: '\"'\"'28px 24px'\"'\"'/g' CommunityDetail.tsx)",
+      "Bash(sed -i 's/maxWidth: 680, margin: .0 auto., padding: .28px 24px./maxWidth: 720, margin: '\"'\"'0 auto'\"'\"', padding: '\"'\"'28px 24px'\"'\"'/g' EventDetail.tsx)",
+      "Bash(sed -i 's/maxWidth: 620, margin: .0 auto., padding: .32px 24px./maxWidth: 720, margin: '\"'\"'0 auto'\"'\"', padding: '\"'\"'32px 24px'\"'\"'/g' Profile.tsx)",
+      "Bash(sed -i 's/maxWidth: 680, padding: .40px 24px./maxWidth: 720, padding: '\"'\"'40px 24px'\"'\"'/g' PublicPreview.tsx)",
+      "Bash(curl -s \"https://api.anthropic.com/v1/design/h/2Evaek2NzdBWrEQUe6VYOA?open_file=Migles.html\")",
+      "Bash(gunzip)",
+      "Bash(curl -sL --compressed \"https://api.anthropic.com/v1/design/h/2Evaek2NzdBWrEQUe6VYOA?open_file=Migles.html\" -o /tmp/design_out.html)",
+      "Bash(gunzip -c \"C:/Users/felurye/.claude/projects/C--Users-felurye-Documents-Caramelo-Tech-migles/b447cc5a-e615-463d-a9cd-b52473fb116d/tool-results/webfetch-1777494476751-3ahzkv.bin\")",
+      "Bash(tar -t)",
+      "Bash(tar -xO \"migles/project/Migles.html\")",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "Bash(uv *)",
+      "Bash(C:\\\\Users\\\\felurye\\\\AppData\\\\Roaming\\\\Python\\\\Python312\\\\Scripts\\\\graphify.exe install *)",
+      "Bash(rm -rf \"/c/Users/felurye/Documents/Caramelo Tech/migles/api\")",
+      "Bash(rm \"/c/Users/felurye/Documents/Caramelo Tech/migles/README2.md\")"
+    ]
+  }
+}

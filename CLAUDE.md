@@ -8,58 +8,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Spec Driven Development
 
-All development starts from specs in `specs/`. Changes to the product must be reflected in `specs/spec-v1.md` before (or alongside) becoming code.
-
-The `specs/backend.md` file is the backend setup prompt/spec.
+All development starts from specs in `docs/`. Changes to the product must be reflected in `docs/spec-v1.md` before (or alongside) becoming code.
 
 ## Monorepo structure
 
-pnpm workspaces. Planned layout:
+pnpm workspaces. Current layout:
 
 ```
 migles/
-├── api/       - NestJS backend
-├── mobile/    - React Native
-├── web/       - React
-└── packages/  - shared packages
+├── src/       - Next.js web app
+├── supabase/  - SQL migrations and Supabase config
+├── docs/      - Product and design specs
+├── app/       - React Native mobile (future)
+└── packages/  - Shared packages (future)
 ```
 
-## Backend (`api/`)
+## Web (`src/`)
 
-**Stack:** NestJS · TypeScript (strict) · Prisma · PostgreSQL · Zod · BullMQ + Redis · Vitest
+**Stack:** Next.js 15 · TypeScript (strict) · Tailwind CSS · shadcn/ui · Supabase · TanStack Query
 
-**Commands (run from `api/`):**
+**Commands (run from project root):**
 
 ```bash
-pnpm dev              # start with watch mode
-pnpm build            # compile
-pnpm test             # run tests with Vitest
-pnpm test:coverage    # coverage report
-pnpm db:migrate       # prisma migrate dev
-pnpm db:generate      # regenerate Prisma client
-pnpm db:studio        # open Prisma Studio
-pnpm db:seed          # run prisma/seed.ts
+npm run dev           # start dev server at localhost:3000
+npm run build         # production build
+npm run lint          # ESLint
+npm run format        # Prettier
+npm run db:link       # link Supabase CLI to remote project
+npm run db:push       # apply pending migrations to remote DB
+npm run db:seed       # create default test user (requires SUPABASE_SERVICE_ROLE_KEY)
 ```
 
-**Module structure** (`api/src/modules/`): `auth`, `users`, `events`, `communities`, `rsvp`, `comments`. Each module follows the pattern: `module · controller · service · repository · schema (Zod) · types`.
+**Structure:**
 
-**Shared** (`api/src/shared/`): `database` (Prisma service), `queue` (BullMQ workers for waitlist promotion and notifications), `guards`, `decorators`, `utils`.
+- `src/app/(protected)/` - authenticated routes (events, communities, profile)
+- `src/app/api/` - Next.js API routes (server-side operations requiring service role)
+- `src/app/i/[code]/` - event invite page (public)
+- `src/app/login/` - login and signup
+- `src/services/` - data access and business logic (Supabase client)
+- `src/integrations/supabase/` - Supabase clients and generated types
+- `src/lib/` - auth context, upload helpers, utilities
 
-**Key domain rules:**
+**Environment:** copy `.env.example` to `.env.local` and fill in:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (optional, for seed only)
+
+## Database
+
+Supabase (PostgreSQL) with Row Level Security. Migrations in `supabase/migrations/`, applied via `npm run db:push`.
+
+Tables: `profiles`, `communities`, `community_members`, `events`, `event_organizers`, `rsvps`, `event_comments`.
+
+## Key domain rules
 
 - An event must always have at least one organizer
 - Waitlist promotion is automatic (FIFO) when a confirmed participant cancels
-- RSVP states: `pending` → `confirmed` | `declined` | `waitlisted`
-- Event visibility: `PRIVATE` (invited only) or `COMMUNITY` (community members)
+- RSVP states: `pending` -> `confirmed` | `declined` | `waitlisted`
+- Event visibility: `private` (invited only) or `community` (community members)
 - Community member status: `ACTIVE` | `PENDING` | `BANNED` - banned users cannot rejoin by any mechanism
 - Only community admins can create events linked to a community
 
-**Environment:** copy `api/.env.example` to `api/.env` and fill in `DATABASE_URL`, `JWT_SECRET`, `REDIS_URL`, and OAuth credentials before running.
-
 ## Open architectural decisions
 
-See `specs/spec-v1.md` section 10 for open questions, notably:
+See `docs/spec-v1.md` section 10 for open questions, notably:
 
-- REST vs GraphQL (Q1) - not yet decided
-- Monorepo vs separate repos (Q2) - decided: monorepo
 - Push notification provider (Q3) - pending
+- Event visibility outside community (Q4) - pending

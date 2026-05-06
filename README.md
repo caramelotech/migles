@@ -1,145 +1,140 @@
 # Migles
 
-**Migles** é um aplicativo multiplataforma (mobile + web) para gerenciamento de eventos sociais. Permite que grupos de amigos e comunidades organizem eventos com RSVP, waitlist e gestão de membros.
+Plataforma multiplataforma (mobile + web) para organização de eventos sociais entre amigos e comunidades.
 
-> **Nota:** Migles NÃO é uma plataforma de mensagens. Ele complementa WhatsApp/Telegram organizando o que acontece fora deles.
+> **Migles não é uma plataforma de mensagens.** Ele complementa WhatsApp/Telegram organizando o que acontece fora deles.
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 Monorepo com pnpm workspaces:
 
 ```
 migles/
-├── api/       - Backend com NestJS
-├── mobile/    - App nativo com React Native
-├── web/       - Web com React (GitHub Pages temporariamente)
-└── packages/  - Pacotes compartilhados
+├── src/       - Web (Next.js 15)
+├── supabase/  - Migrações SQL e configuração
+├── docs/      - Especificações de produto e design
+├── app/       - Mobile com React Native (futuro)
+└── packages/  - Pacotes compartilhados (futuro)
 ```
 
-## 🛠️ Stack de Tecnologia
+## Stack
 
-### Backend (`api/`)
+| Camada         | Tecnologia                                      |
+| -------------- | ----------------------------------------------- |
+| Web            | Next.js 15, TypeScript, Tailwind CSS, shadcn/ui |
+| Mobile         | React Native (futuro)                           |
+| Banco de dados | PostgreSQL via Supabase com Row Level Security  |
+| Auth           | Supabase Auth                                   |
+| Storage        | Supabase Storage                                |
 
-- **Framework:** NestJS
-- **Linguagem:** TypeScript (strict mode)
-- **ORM:** Prisma
-- **Banco de dados:** PostgreSQL
-- **Validação:** Zod
-- **Queue:** BullMQ + Redis
-- **Testes:** Vitest
+## Requisitos
 
-### Frontend Web (`web/`)
+- Node.js 20+
+- npm 10+
+- Conta no [Supabase](https://supabase.com)
 
-- **Framework:** React 18 + Vite
-- **Linguagem:** TypeScript (strict mode)
-- **Roteamento:** React Router DOM v6 (HashRouter)
-- **Deploy:** GitHub Pages — https://caramelotech.github.io/migles/
+## Configuração inicial
 
-### Frontend Mobile (`mobile/`)
-
-- **Framework:** React Native
-
-## 🚀 Primeiros Passos
-
-### Pré-requisitos
+### 1. Instalar dependências
 
 ```bash
-npm install -g pnpm   # gerenciador de pacotes do monorepo
+npm install
 ```
 
-### Instalar todas as dependências
+### 2. Configurar variáveis de ambiente
+
+Crie (ou edite) o arquivo `.env.local` na raiz do projeto:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+
+# Necessário apenas para rodar db:seed
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+```
+
+As chaves ficam em: **Supabase Dashboard > Project Settings > API**.
+
+### 3. Aplicar migrações no banco
+
+Autentique-se no Supabase CLI, vincule o projeto e aplique as migrações:
 
 ```bash
-# a partir da raiz do projeto
-pnpm install
+npx supabase login
+npm run db:link
+npm run db:push
 ```
 
----
+O `db:link` vai pedir a senha do banco (disponível em **Project Settings > Database > Database password**).
 
-### Backend (`api/`)
-
-1. Copie o arquivo de ambiente:
+## Desenvolvimento
 
 ```bash
-cp api/.env.example api/.env
+npm run dev
 ```
 
-2. Preencha as variáveis obrigatórias em `api/.env`:
-   - `DATABASE_URL` — conexão PostgreSQL
-   - `JWT_SECRET` — chave para JWT
-   - `REDIS_URL` — conexão Redis
-   - Credenciais OAuth (Google, Apple)
+A aplicação fica disponível em `http://localhost:3000`.
 
-3. Inicie o desenvolvimento:
+## Scripts disponíveis
 
-```bash
-pnpm api:dev
-# ou dentro de api/: pnpm dev
+| Script            | Descrição                                     |
+| ----------------- | --------------------------------------------- |
+| `npm run dev`     | Servidor de desenvolvimento                   |
+| `npm run build`   | Build de produção                             |
+| `npm run start`   | Inicia o build de produção                    |
+| `npm run lint`    | Verifica problemas de lint                    |
+| `npm run format`  | Formata o código com Prettier                 |
+| `npm run db:link` | Vincula o projeto Supabase ao projeto remoto  |
+| `npm run db:push` | Aplica as migrações pendentes no banco remoto |
+| `npm run db:seed` | Cria o usuário de teste padrão                |
+
+## Estrutura do projeto
+
+```
+src/
+  app/
+    (protected)/       - Rotas autenticadas (eventos, comunidades, perfil)
+    api/               - API Routes do Next.js (operações server-side)
+    i/[code]/          - Página de convite por link
+    login/             - Login e cadastro
+  components/          - Componentes de UI (shadcn/ui)
+  integrations/
+    supabase/          - Clientes Supabase (client-side e server-side) e tipos gerados
+  lib/                 - Contextos de auth e tema, utilitários e helpers
+  services/            - Acesso a dados e lógica de negócio (via Supabase client)
+supabase/
+  migrations/          - Migrações SQL do banco de dados
+docs/
+  spec-v1.md           - Especificação de produto
+  design-system.md     - Sistema de design (tokens, componentes)
 ```
 
-#### Comandos do backend (dentro de `api/`)
+## Banco de dados
 
-| Comando              | Descrição                 |
-| -------------------- | ------------------------- |
-| `pnpm dev`           | Inicia com watch mode     |
-| `pnpm build`         | Compila                   |
-| `pnpm test`          | Executa testes com Vitest |
-| `pnpm test:coverage` | Relatório de cobertura    |
-| `pnpm db:migrate`    | Prisma migrate dev        |
-| `pnpm db:generate`   | Regenera Prisma client    |
-| `pnpm db:studio`     | Abre Prisma Studio        |
-| `pnpm db:seed`       | Seed com dados iniciais   |
+O schema inclui as tabelas: `profiles`, `communities`, `community_members`, `events`, `event_organizers`, `rsvps` e `event_comments`.
 
----
+Todas as tabelas usam Row Level Security (RLS). As migrações ficam em `supabase/migrations/` e são aplicadas em ordem cronológica pelo `db:push`.
 
-### Web (`web/`)
+## Regras de domínio
 
-```bash
-pnpm web:dev      # servidor de desenvolvimento em localhost:5173
-pnpm web:build    # build de produção
-pnpm web:preview  # preview do build local
-```
-
-O deploy para GitHub Pages acontece automaticamente via GitHub Actions quando há push na branch `main` com alterações em `web/`. Também pode ser disparado manualmente em **Actions → Deploy web to GitHub Pages → Run workflow**.
-
-> Para ativar o deploy pela primeira vez: **Settings → Pages → Source → GitHub Actions**
-
----
-
-## 📋 Estrutura de Módulos
-
-Os módulos do backend (`api/src/modules/`) seguem o padrão:
-
-- `auth` — Autenticação e estratégias OAuth
-- `users` — Gerenciamento de usuários
-- `events` — Gestão de eventos
-- `communities` — Gerenciamento de comunidades
-- `rsvp` — Sistema de confirmação de presença
-- `comments` — Comentários em eventos
-
-Cada módulo possui: controller, service, repository, schema Zod e types.
-
-## 🎯 Regras de Domínio
-
-- Um evento deve ter **pelo menos um organizador**
-- Promoção automática de waitlist (FIFO) quando confirmado cancela
-- Estados RSVP: `pending` → `confirmed` | `declined` | `waitlisted`
-- Visibilidade: `PRIVATE` (só convidados) ou `COMMUNITY` (membros da comunidade)
+- Todo evento deve ter **pelo menos um organizador**
+- Promoção automática de waitlist (FIFO) quando um confirmado cancela
+- Estados RSVP: `pending` -> `confirmed` | `declined` | `waitlisted`
+- Visibilidade: `private` (só convidados) ou `community` (membros da comunidade)
 - Status de membro: `ACTIVE` | `PENDING` | `BANNED`
-- Apenas admins da comunidade podem criar eventos ligados a uma comunidade
+- Apenas admins da comunidade podem criar eventos vinculados a ela
 
-## 📖 Especificações
+## Especificações
 
-Todas as decisões de produto e arquitetura estão documentadas em `specs/`:
+Todas as decisões de produto e arquitetura estão documentadas em `docs/`:
 
-| Arquivo                  | Conteúdo                                    |
-| ------------------------ | ------------------------------------------- |
-| `specs/spec-v1.md`       | Especificação de produto v1                 |
-| `specs/backend.md`       | Spec e prompt de setup do backend           |
-| `specs/design-system.md` | Sistema de design (tokens, componentes, DS) |
+| Arquivo                 | Conteúdo                                |
+| ----------------------- | --------------------------------------- |
+| `docs/spec-v1.md`       | Especificação de produto v1             |
+| `docs/design-system.md` | Sistema de design (tokens, componentes) |
 
 Para mudanças no produto, atualize a spec **antes** de implementar.
 
-## 📝 Licença
+## Licença
 
 MIT

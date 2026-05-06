@@ -1,0 +1,52 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+type Theme = "light" | "dark";
+type ThemeContextValue = { theme: Theme; toggleTheme: () => void; setTheme: (t: Theme) => void };
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+const STORAGE_KEY = "migles-theme";
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    const initial: Theme =
+      stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setThemeState(initial);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const root = document.documentElement;
+    root.classList.toggle("dark", theme === "dark");
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch (error) {
+      console.warn("Failed to save theme preference", error);
+    }
+  }, [theme, mounted]);
+
+  const setTheme = (t: Theme) => setThemeState(t);
+  const toggleTheme = () => setThemeState((p) => (p === "dark" ? "light" : "dark"));
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
+  return ctx;
+}
