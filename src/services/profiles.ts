@@ -36,3 +36,19 @@ export async function updateProfile(
   if (error) throw error;
   return data;
 }
+
+export async function searchProfiles(query: string, excludeIds: string[] = []) {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+  let q = supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url")
+    .ilike("display_name", `%${trimmed}%`)
+    .limit(8);
+  if (excludeIds.length > 0) {
+    q = q.not("id", "in", `(${excludeIds.join(",")})`);
+  }
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}

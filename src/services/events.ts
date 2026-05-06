@@ -13,6 +13,20 @@ export type EventWithCounts = EventRow & {
   community_name: string | null;
 };
 
+// Local join shapes returned by Supabase relational queries
+type EventWithFullJoins = EventRow & {
+  rsvps: Array<{ status: RsvpStatus; user_id: string }>;
+  communities: { name: string } | null;
+};
+
+type EventWithRsvpStatus = EventRow & {
+  rsvps: Array<{ status: RsvpStatus }>;
+};
+
+function countConfirmed(rsvps: Array<{ status: RsvpStatus }>): number {
+  return rsvps.filter((r) => r.status === "confirmed").length;
+}
+
 export async function listMyEvents(userId: string): Promise<EventWithCounts[]> {
   const { data: events, error } = await supabase
     .from("events")
@@ -22,15 +36,12 @@ export async function listMyEvents(userId: string): Promise<EventWithCounts[]> {
   if (error) throw error;
 
   return (events ?? []).map((e) => {
-    const rsvps =
-      (e as unknown as { rsvps: { status: RsvpStatus; user_id: string }[] }).rsvps ?? [];
-    const community = (e as unknown as { communities: { name: string } | null }).communities;
-    const my = rsvps.find((r) => r.user_id === userId);
+    const event = e as unknown as EventWithFullJoins;
     return {
-      ...(e as EventRow),
-      confirmed_count: rsvps.filter((r) => r.status === "confirmed").length,
-      my_rsvp: my?.status ?? null,
-      community_name: community?.name ?? null,
+      ...event,
+      confirmed_count: countConfirmed(event.rsvps),
+      my_rsvp: event.rsvps.find((r) => r.user_id === userId)?.status ?? null,
+      community_name: event.communities?.name ?? null,
     };
   });
 }
@@ -72,10 +83,10 @@ export async function listCommunityEvents(communityId: string) {
     .order("starts_at", { ascending: true });
   if (error) throw error;
   return (data ?? []).map((e) => {
-    const rsvps = (e as unknown as { rsvps: { status: RsvpStatus }[] }).rsvps ?? [];
+    const event = e as unknown as EventWithRsvpStatus;
     return {
-      ...(e as EventRow),
-      confirmed_count: rsvps.filter((r) => r.status === "confirmed").length,
+      ...event,
+      confirmed_count: countConfirmed(event.rsvps),
     };
   });
 }
@@ -183,22 +194,6 @@ export async function addComment(
     .from("event_comments")
     .insert({ event_id: eventId, user_id: userId, content, parent_id: parentId ?? null });
   if (error) throw error;
-}
-
-export async function searchProfiles(query: string, excludeIds: string[] = []) {
-  const trimmed = query.trim();
-  if (trimmed.length < 2) return [];
-  let q = supabase
-    .from("profiles")
-    .select("id, display_name, avatar_url")
-    .ilike("display_name", `%${trimmed}%`)
-    .limit(8);
-  if (excludeIds.length > 0) {
-    q = q.not("id", "in", `(${excludeIds.join(",")})`);
-  }
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
 }
 
 export async function inviteUserToEvent(eventId: string, userId: string) {

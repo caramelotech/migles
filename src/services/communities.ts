@@ -4,6 +4,8 @@ import type { Database } from "@/integrations/supabase/types";
 export type CommunityRow = Database["public"]["Tables"]["communities"]["Row"];
 export type CommunityType = Database["public"]["Enums"]["community_type"];
 
+type MemberWithCommunity = { role: string; communities: CommunityRow };
+
 export async function listMyCommunities(userId: string) {
   const { data, error } = await supabase
     .from("community_members")
@@ -11,10 +13,10 @@ export async function listMyCommunities(userId: string) {
     .eq("user_id", userId)
     .eq("status", "active");
   if (error) throw error;
-  return (data ?? []).map((m) => ({
-    role: m.role,
-    community: (m as unknown as { communities: CommunityRow }).communities,
-  }));
+  return (data ?? []).map((m) => {
+    const member = m as unknown as MemberWithCommunity;
+    return { role: member.role, community: member.communities };
+  });
 }
 
 export async function searchPublicCommunities(query: string) {

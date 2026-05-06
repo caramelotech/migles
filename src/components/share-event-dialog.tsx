@@ -14,7 +14,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { searchProfiles, inviteUserToEvent } from "@/services/events";
+import { inviteUserToEvent } from "@/services/events";
+import { searchProfiles } from "@/services/profiles";
 
 type Props = {
   open: boolean;
