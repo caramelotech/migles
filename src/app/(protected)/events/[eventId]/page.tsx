@@ -13,6 +13,8 @@ import {
   Share2,
   Send,
   Clock,
+  Trash2,
+  UserMinus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -23,6 +25,8 @@ import {
   listEventComments,
   setRsvp,
   addComment,
+  deleteComment,
+  removeRsvp,
   type RsvpStatus,
 } from "@/services/events";
 import { formatEventDate, formatRelativeDate } from "@/lib/format";
@@ -113,6 +117,26 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       toast.error(err instanceof Error ? err.message : "Erro ao atualizar RSVP.");
     } finally {
       setRsvpLoading(false);
+    }
+  }
+
+  async function handleDeleteComment(commentId: string) {
+    try {
+      await deleteComment(commentId);
+      qc.invalidateQueries({ queryKey: ["event-comments", eventId] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao remover comentário.");
+    }
+  }
+
+  async function handleRemoveRsvp(userId: string) {
+    try {
+      await removeRsvp(eventId, userId);
+      qc.invalidateQueries({ queryKey: ["event-rsvps", eventId] });
+      qc.invalidateQueries({ queryKey: ["my-events", user?.id] });
+      toast.success("RSVP removido.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao remover RSVP.");
     }
   }
 
@@ -322,8 +346,9 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             }>
           ).map((c) => {
             const name = c.profiles?.display_name ?? "Usuário";
+            const canDelete = user?.id === c.user_id || isOrganizer;
             return (
-              <div key={c.id} className="flex gap-3">
+              <div key={c.id} className="flex gap-3 group">
                 <Avatar className="h-8 w-8 shrink-0 mt-0.5">
                   {c.profiles?.avatar_url && <AvatarImage src={c.profiles.avatar_url} alt={name} />}
                   <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
@@ -334,6 +359,15 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                     <span className="text-xs text-muted-foreground">
                       {formatRelativeDate(c.created_at)}
                     </span>
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeleteComment(c.id)}
+                        className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                        title="Remover comentário"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                   <p className="mt-0.5 text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
                     {c.content}
@@ -366,6 +400,72 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
           </form>
         )}
       </section>
+
+      {/* Organizer: manage all RSVPs */}
+      {isOrganizer && rsvps.length > 0 && (
+        <>
+          <Separator />
+          <section className="space-y-3">
+            <h2 className="font-semibold">Gerenciar participantes</h2>
+            {(
+              [
+                { label: "Confirmados", status: "confirmed" },
+                { label: "Lista de espera", status: "waitlisted" },
+                { label: "Pendentes", status: "pending" },
+                { label: "Recusados", status: "declined" },
+              ] as const
+            ).map(({ label, status }) => {
+              type RsvpWithProfile = {
+                user_id: string;
+                status: RsvpStatus;
+                waitlist_position: number | null;
+                profiles: { display_name: string | null; avatar_url: string | null } | null;
+              };
+              const group = (rsvps as unknown as RsvpWithProfile[]).filter(
+                (r) => r.status === status,
+              );
+              if (group.length === 0) return null;
+              return (
+                <div key={status} className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                    {label} ({group.length})
+                  </p>
+                  {group.map((r) => {
+                    const name = r.profiles?.display_name ?? "Usuário";
+                    const avatarUrl = r.profiles?.avatar_url;
+                    return (
+                      <div
+                        key={r.user_id}
+                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/30 transition-colors"
+                      >
+                        <Avatar className="h-7 w-7 shrink-0">
+                          {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
+                          <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
+                        </Avatar>
+                        <span className="flex-1 text-sm truncate">{name}</span>
+                        {r.status === "waitlisted" && r.waitlist_position != null && (
+                          <span className="text-xs text-muted-foreground">
+                            #{r.waitlist_position}
+                          </span>
+                        )}
+                        {r.user_id !== user?.id && (
+                          <button
+                            onClick={() => handleRemoveRsvp(r.user_id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors"
+                            title="Remover RSVP"
+                          >
+                            <UserMinus className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </section>
+        </>
+      )}
 
       {/* Share dialog */}
       <ShareEventDialog

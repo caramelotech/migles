@@ -1,23 +1,78 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, Globe, Lock, Pencil, UserPlus, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Globe,
+  Lock,
+  Pencil,
+  UserPlus,
+  Loader2,
+  MoreHorizontal,
+  Shield,
+  ShieldOff,
+  UserMinus,
+  Ban,
+  LogOut,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { getCommunity, listMyCommunities, joinCommunity } from "@/services/communities";
+import {
+  getCommunity,
+  listMyCommunities,
+  listCommunityMembers,
+  joinCommunity,
+  updateMemberRole,
+  banMember,
+  removeMember,
+  type CommunityMemberRole,
+} from "@/services/communities";
 import { listCommunityEvents } from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+function initials(name: string | null | undefined) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
 
 export default function CommunityPage({ params }: { params: Promise<{ communityId: string }> }) {
   const { communityId } = use(params);
   const { user } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   const { data: community, isLoading: loadingCommunity } = useQuery({
     queryKey: ["community", communityId],
@@ -35,20 +90,70 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
     enabled: !!user,
   });
 
+  const { data: members = [], isLoading: loadingMembers } = useQuery({
+    queryKey: ["community-members", communityId],
+    queryFn: () => listCommunityMembers(communityId),
+    enabled: !!communityId,
+  });
+
   const membership = memberships.find((m) => m.community.id === communityId);
   const isMember = !!membership;
   const isAdmin = membership?.role === "admin";
+
+  function invalidateMembers() {
+    queryClient.invalidateQueries({ queryKey: ["community-members", communityId] });
+    queryClient.invalidateQueries({ queryKey: ["my-communities", user?.id] });
+  }
 
   const joinMutation = useMutation({
     mutationFn: () => joinCommunity(communityId, user!.id),
     onSuccess: () => {
       toast.success("Você entrou na comunidade!");
-      queryClient.invalidateQueries({ queryKey: ["my-communities", user?.id] });
+      invalidateMembers();
     },
-    onError: (err) => {
-      toast.error(err instanceof Error ? err.message : "Erro ao entrar na comunidade.");
-    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao entrar."),
   });
+
+  const roleMutation = useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: CommunityMemberRole }) =>
+      updateMemberRole(communityId, userId, role),
+    onSuccess: () => {
+      toast.success("Papel atualizado.");
+      invalidateMembers();
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao atualizar papel."),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (userId: string) => removeMember(communityId, userId),
+    onSuccess: (_, userId) => {
+      if (userId === user?.id) {
+        toast.success("Você saiu da comunidade.");
+        queryClient.invalidateQueries({ queryKey: ["my-communities", user?.id] });
+        router.push("/communities");
+      } else {
+        toast.success("Membro removido.");
+        invalidateMembers();
+      }
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao remover membro."),
+  });
+
+  const banMutation = useMutation({
+    mutationFn: (userId: string) => banMember(communityId, userId),
+    onSuccess: () => {
+      toast.success("Membro banido.");
+      invalidateMembers();
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao banir membro."),
+  });
+
+  function confirmAction() {
+    if (!pendingAction) return;
+    if (pendingAction.type === "ban") banMutation.mutate(pendingAction.userId);
+    else removeMutation.mutate(pendingAction.userId);
+    setPendingAction(null);
+  }
 
   if (loadingCommunity) {
     return (
@@ -71,7 +176,6 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Back */}
       <Button
         variant="ghost"
         size="sm"
@@ -122,7 +226,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
               )}
             </div>
 
-            <div className="shrink-0">
+            <div className="shrink-0 flex gap-2">
               {isAdmin ? (
                 <Button
                   size="sm"
@@ -132,7 +236,19 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                   <Pencil className="h-3.5 w-3.5 mr-1.5" />
                   Editar
                 </Button>
-              ) : !isMember ? (
+              ) : isMember ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() =>
+                    setPendingAction({ type: "leave", userId: user!.id, name: "você" })
+                  }
+                >
+                  <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                  Sair
+                </Button>
+              ) : (
                 <Button
                   size="sm"
                   onClick={() => joinMutation.mutate()}
@@ -145,7 +261,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                   )}
                   Entrar
                 </Button>
-              ) : null}
+              )}
             </div>
           </div>
         </div>
@@ -153,7 +269,110 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
       <Separator />
 
-      {/* Eventos */}
+      {/* Members */}
+      {isMember && (
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Membros {!loadingMembers && `(${members.length})`}
+            </h2>
+          </div>
+
+          {loadingMembers ? (
+            <div className="flex justify-center py-6">
+              <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary" />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {members.map((m) => {
+                const name = m.profiles?.display_name ?? "Usuário";
+                const isCurrentUser = m.user_id === user?.id;
+                const isThisAdmin = m.role === "admin";
+                return (
+                  <div
+                    key={m.id}
+                    className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/30 transition-colors"
+                  >
+                    <Avatar className="h-8 w-8 shrink-0">
+                      {m.profiles?.avatar_url && (
+                        <AvatarImage src={m.profiles.avatar_url} alt={name} />
+                      )}
+                      <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate block">
+                        {name}
+                        {isCurrentUser && (
+                          <span className="ml-1.5 text-xs text-muted-foreground">(você)</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={isThisAdmin ? "default" : "outline"} className="text-xs">
+                        {isThisAdmin ? "Admin" : "Membro"}
+                      </Badge>
+
+                      {isAdmin && !isCurrentUser && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {isThisAdmin ? (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  roleMutation.mutate({ userId: m.user_id, role: "member" })
+                                }
+                              >
+                                <ShieldOff className="h-4 w-4 mr-2" />
+                                Remover de admin
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  roleMutation.mutate({ userId: m.user_id, role: "admin" })
+                                }
+                              >
+                                <Shield className="h-4 w-4 mr-2" />
+                                Tornar admin
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setPendingAction({ type: "remove", userId: m.user_id, name })
+                              }
+                            >
+                              <UserMinus className="h-4 w-4 mr-2" />
+                              Remover da comunidade
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() =>
+                                setPendingAction({ type: "ban", userId: m.user_id, name })
+                              }
+                            >
+                              <Ban className="h-4 w-4 mr-2" />
+                              Banir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
+      <Separator />
+
+      {/* Events */}
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           Eventos
@@ -195,6 +414,45 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
           </div>
         )}
       </section>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={!!pendingAction} onOpenChange={(o) => !o && setPendingAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAction?.type === "ban"
+                ? `Banir ${pendingAction.name}?`
+                : pendingAction?.type === "leave"
+                  ? "Sair da comunidade?"
+                  : `Remover ${pendingAction?.name}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.type === "ban"
+                ? "Essa ação é permanente. O usuário não poderá reingressar por nenhum mecanismo."
+                : pendingAction?.type === "leave"
+                  ? "Você perderá acesso à comunidade e seus eventos. Para voltar, precisará entrar novamente."
+                  : "O usuário será removido da comunidade e perderá acesso aos eventos."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmAction}
+              className={
+                pendingAction?.type === "ban"
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  : ""
+              }
+            >
+              {pendingAction?.type === "ban"
+                ? "Banir"
+                : pendingAction?.type === "leave"
+                  ? "Sair"
+                  : "Remover"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

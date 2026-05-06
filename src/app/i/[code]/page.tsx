@@ -2,10 +2,16 @@
 
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, ArrowRight, LinkIcon } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { CalendarDays, LinkIcon, Check, X } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { getEventByInviteCode } from "@/services/events";
+import {
+  getEventByInviteCode,
+  inviteUserToEvent,
+  setRsvp,
+  type RsvpStatus,
+} from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +30,26 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
     queryKey: ["invite", code],
     queryFn: () => getEventByInviteCode(code),
     enabled: !!user,
+  });
+
+  // Ensure a pending RSVP exists when the invite page loads
+  const ensurePending = useMutation({
+    mutationFn: () => inviteUserToEvent(event!.id, user!.id),
+  });
+
+  useEffect(() => {
+    if (event && user) ensurePending.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.id, user?.id]);
+
+  const rsvpMutation = useMutation({
+    mutationFn: (status: RsvpStatus) => setRsvp(event!.id, user!.id, status),
+    onSuccess: (_, status) => {
+      toast.success(status === "confirmed" ? "Presença confirmada!" : "Presença recusada.");
+      router.push(`/events/${event!.id}`);
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "Erro ao responder convite."),
   });
 
   if (authLoading || (!user && !authLoading)) {
@@ -73,10 +99,32 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
               />
             )}
 
-            <Button className="w-full gap-2" onClick={() => router.push(`/events/${event.id}`)}>
-              Ver evento
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => rsvpMutation.mutate("confirmed")}
+                disabled={rsvpMutation.isPending}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Confirmar presença
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => rsvpMutation.mutate("declined")}
+                disabled={rsvpMutation.isPending}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Recusar
+              </Button>
+            </div>
+
+            <button
+              onClick={() => router.push(`/events/${event.id}`)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Ver detalhes do evento
+            </button>
           </>
         ) : (
           <>

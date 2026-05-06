@@ -3,16 +3,32 @@
 import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ImagePlus, Loader2, Globe, Lock } from "lucide-react";
+import { ArrowLeft, ImagePlus, Loader2, Globe, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { getCommunity, updateCommunity, type CommunityType } from "@/services/communities";
+import {
+  getCommunity,
+  updateCommunity,
+  deleteCommunity,
+  type CommunityType,
+} from "@/services/communities";
 import { uploadCover } from "@/lib/upload-cover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function EditCommunityPage({
   params,
@@ -44,6 +60,17 @@ export default function EditCommunityPage({
       setCoverPreview(community.cover_url ?? null);
     }
   }, [community]);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteCommunity(communityId),
+    onSuccess: () => {
+      toast.success("Comunidade excluída.");
+      queryClient.invalidateQueries({ queryKey: ["my-communities", user?.id] });
+      router.push("/communities");
+    },
+    onError: (err) =>
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir comunidade."),
+  });
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -249,6 +276,40 @@ export default function EditCommunityPage({
             {updateMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Salvar alterações
           </Button>
+        </div>
+
+        {/* Excluir */}
+        <div className="pt-4 border-t border-border">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                disabled={deleteMutation.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir comunidade
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir "{community.name}"?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação é permanente e não pode ser desfeita. Todos os membros perderão acesso.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={() => deleteMutation.mutate()}
+                >
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </form>
     </div>

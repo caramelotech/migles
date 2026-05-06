@@ -196,6 +196,25 @@ export async function addComment(
   if (error) throw error;
 }
 
+export async function deleteEvent(eventId: string) {
+  const { error } = await supabase.from("events").delete().eq("id", eventId);
+  if (error) throw error;
+}
+
+export async function deleteComment(commentId: string) {
+  const { error } = await supabase.from("event_comments").delete().eq("id", commentId);
+  if (error) throw error;
+}
+
+export async function removeRsvp(eventId: string, userId: string) {
+  const { error } = await supabase
+    .from("rsvps")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
 export async function inviteUserToEvent(eventId: string, userId: string) {
   const { error } = await supabase
     .from("rsvps")

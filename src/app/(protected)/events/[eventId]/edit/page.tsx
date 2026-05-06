@@ -2,14 +2,25 @@
 
 import { use, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import { getEvent, updateEvent } from "@/services/events";
+import { getEvent, updateEvent, deleteEvent } from "@/services/events";
 import { listMyCommunities } from "@/services/communities";
 import { uploadCover } from "@/lib/upload-cover";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +36,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   const { eventId } = use(params);
   const { user } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
@@ -121,8 +133,15 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     }
   }
 
-  function handleDelete() {
-    toast.info("Exclusão de eventos em breve.");
+  async function handleDelete() {
+    try {
+      await deleteEvent(eventId);
+      toast.success("Evento excluído.");
+      queryClient.invalidateQueries({ queryKey: ["my-events", user?.id] });
+      router.push("/events");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir evento.");
+    }
   }
 
   if (loadingEvent) {
@@ -326,16 +345,36 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
 
         {/* Delete */}
         <div className="pt-4 border-t border-border">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={handleDelete}
-            disabled={submitting}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Excluir evento
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                disabled={submitting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir evento
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir evento?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação é permanente. Todos os RSVPs e comentários serão removidos.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={handleDelete}
+                >
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </form>
     </div>

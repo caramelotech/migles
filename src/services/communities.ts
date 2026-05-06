@@ -3,6 +3,15 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type CommunityRow = Database["public"]["Tables"]["communities"]["Row"];
 export type CommunityType = Database["public"]["Enums"]["community_type"];
+export type CommunityMemberRole = Database["public"]["Enums"]["community_member_role"];
+
+type MemberWithProfile = {
+  id: string;
+  user_id: string;
+  role: CommunityMemberRole;
+  joined_at: string;
+  profiles: { id: string; display_name: string | null; avatar_url: string | null } | null;
+};
 
 type MemberWithCommunity = { role: string; communities: CommunityRow };
 
@@ -64,6 +73,53 @@ export async function getCommunity(communityId: string) {
     .maybeSingle();
   if (error) throw error;
   return data;
+}
+
+export async function listCommunityMembers(communityId: string): Promise<MemberWithProfile[]> {
+  const { data, error } = await supabase
+    .from("community_members")
+    .select("id, user_id, role, joined_at, profiles:user_id(id, display_name, avatar_url)")
+    .eq("community_id", communityId)
+    .eq("status", "active")
+    .order("joined_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as MemberWithProfile[];
+}
+
+export async function updateMemberRole(
+  communityId: string,
+  userId: string,
+  role: CommunityMemberRole,
+) {
+  const { error } = await supabase
+    .from("community_members")
+    .update({ role })
+    .eq("community_id", communityId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function banMember(communityId: string, userId: string) {
+  const { error } = await supabase
+    .from("community_members")
+    .update({ status: "banned" })
+    .eq("community_id", communityId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function removeMember(communityId: string, userId: string) {
+  const { error } = await supabase
+    .from("community_members")
+    .delete()
+    .eq("community_id", communityId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function deleteCommunity(communityId: string) {
+  const { error } = await supabase.from("communities").delete().eq("id", communityId);
+  if (error) throw error;
 }
 
 export async function updateCommunity(
