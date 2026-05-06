@@ -83,13 +83,18 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password, display_name: data.displayName }),
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          display_name: data.displayName,
+        }),
       });
 
       const json = await res.json();
 
       if (!res.ok) {
-        const msg = res.status === 409 ? "E-mail já cadastrado." : (json.error ?? "Erro ao criar conta.");
+        const msg =
+          res.status === 409 ? "E-mail já cadastrado." : (json.error ?? "Erro ao criar conta.");
         toast.error(msg);
         return;
       }

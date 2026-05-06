@@ -82,9 +82,9 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const isOrganizer = user ? organizerIds.includes(user.id) : false;
 
   const myRsvp = user
-    ? (rsvps as Array<{ user_id: string; status: RsvpStatus; waitlist_position: number | null }>).find(
-        (r) => r.user_id === user.id,
-      )
+    ? (
+        rsvps as Array<{ user_id: string; status: RsvpStatus; waitlist_position: number | null }>
+      ).find((r) => r.user_id === user.id)
     : null;
 
   const confirmedRsvps = (
@@ -184,11 +184,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       {/* Cover */}
       {event.cover_url && (
         <div className="w-full h-52 rounded-xl overflow-hidden">
-          <img
-            src={event.cover_url}
-            alt={event.title}
-            className="h-full w-full object-cover"
-          />
+          <img src={event.cover_url} alt={event.title} className="h-full w-full object-cover" />
         </div>
       )}
 
@@ -252,8 +248,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             variant={myRsvp?.status === "confirmed" ? "default" : "outline"}
             className={cn(
               "flex-1",
-              myRsvp?.status === "confirmed" &&
-                "bg-emerald-600 hover:bg-emerald-700 text-white",
+              myRsvp?.status === "confirmed" && "bg-emerald-600 hover:bg-emerald-700 text-white",
             )}
             onClick={() => handleRsvp("confirmed")}
             disabled={rsvpLoading}
@@ -282,14 +277,16 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
           <h2 className="font-semibold">Confirmados ({confirmedRsvps.length})</h2>
           <div className="flex flex-wrap gap-3">
             {confirmedRsvps.map((r) => {
-              const profile = (r as unknown as { profiles: { display_name: string | null; avatar_url: string | null } }).profiles;
+              const profile = (
+                r as unknown as {
+                  profiles: { display_name: string | null; avatar_url: string | null };
+                }
+              ).profiles;
               const name = profile?.display_name ?? "Usuário";
               return (
                 <div key={r.user_id} className="flex flex-col items-center gap-1">
                   <Avatar className="h-10 w-10">
-                    {profile?.avatar_url && (
-                      <AvatarImage src={profile.avatar_url} alt={name} />
-                    )}
+                    {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={name} />}
                     <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
                   </Avatar>
                   <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
@@ -328,9 +325,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             return (
               <div key={c.id} className="flex gap-3">
                 <Avatar className="h-8 w-8 shrink-0 mt-0.5">
-                  {c.profiles?.avatar_url && (
-                    <AvatarImage src={c.profiles.avatar_url} alt={name} />
-                  )}
+                  {c.profiles?.avatar_url && <AvatarImage src={c.profiles.avatar_url} alt={name} />}
                   <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -365,11 +360,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                 }
               }}
             />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={postingComment || !comment.trim()}
-            >
+            <Button type="submit" size="icon" disabled={postingComment || !comment.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </form>

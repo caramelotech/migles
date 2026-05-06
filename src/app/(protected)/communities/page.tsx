@@ -64,9 +64,7 @@ function CommunityCard({
               variant="outline"
               className={cn(
                 "text-xs shrink-0",
-                role === "admin"
-                  ? "border-primary/40 text-primary"
-                  : "text-muted-foreground",
+                role === "admin" ? "border-primary/40 text-primary" : "text-muted-foreground",
               )}
             >
               {role === "admin" ? "Admin" : "Membro"}

@@ -12,11 +12,23 @@ import { cn } from "@/lib/utils";
 
 function rsvpBadge(status: RsvpStatus | null) {
   if (status === "confirmed")
-    return <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/20">Confirmado</Badge>;
+    return (
+      <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/20">
+        Confirmado
+      </Badge>
+    );
   if (status === "pending")
-    return <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 hover:bg-amber-500/20">Pendente</Badge>;
+    return (
+      <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 hover:bg-amber-500/20">
+        Pendente
+      </Badge>
+    );
   if (status === "declined")
-    return <Badge className="bg-red-500/15 text-red-600 border-red-500/30 hover:bg-red-500/20">Recusado</Badge>;
+    return (
+      <Badge className="bg-red-500/15 text-red-600 border-red-500/30 hover:bg-red-500/20">
+        Recusado
+      </Badge>
+    );
   if (status === "waitlisted")
     return <Badge className="bg-muted text-muted-foreground hover:bg-muted">Lista de espera</Badge>;
   return <Badge variant="outline">Participar</Badge>;

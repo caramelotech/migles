@@ -112,11 +112,7 @@ export default function ProfilePage() {
               )}
             >
               {avatarPreview ? (
-                <img
-                  src={avatarPreview}
-                  alt="Avatar"
-                  className="h-full w-full object-cover"
-                />
+                <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
               ) : (
                 avatarInitial(displayName || profile?.display_name)
               )}

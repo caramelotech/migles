@@ -6,22 +6,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, Globe, Lock, Pencil, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import {
-  getCommunity,
-  listMyCommunities,
-  joinCommunity,
-} from "@/services/communities";
+import { getCommunity, listMyCommunities, joinCommunity } from "@/services/communities";
 import { listCommunityEvents } from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-export default function CommunityPage({
-  params,
-}: {
-  params: Promise<{ communityId: string }>;
-}) {
+export default function CommunityPage({ params }: { params: Promise<{ communityId: string }> }) {
   const { communityId } = use(params);
   const { user } = useAuth();
   const router = useRouter();

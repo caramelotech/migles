@@ -148,11 +148,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     <div className="space-y-6 max-w-lg">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push(`/events/${eventId}`)}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.push(`/events/${eventId}`)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Editar evento</h1>

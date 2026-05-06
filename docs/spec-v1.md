@@ -3,12 +3,12 @@
 > **Spec Driven Development**
 > Todo desenvolvimento parte deste spec. Mudanças no produto devem refletir aqui antes (ou junto) de virar código.
 
-| Campo  | Valor                                       |
-| ------ | ------------------------------------------- |
-| Versão | 1.0                                         |
-| Status | `[em discussão]`                            |
-| Data   | Abril 2026                                  |
-| Time   | 2–4 pessoas                                 |
+| Campo  | Valor                                |
+| ------ | ------------------------------------ |
+| Versão | 1.0                                  |
+| Status | `[em discussão]`                     |
+| Data   | Abril 2026                           |
+| Time   | 2–4 pessoas                          |
 | Stack  | React Native · Next.js 15 · Supabase |
 
 ## Índice
@@ -289,12 +289,12 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 ### 9.1 Plataformas
 
-| Plataforma     | Tech                 | Responsabilidade principal                           |
-| -------------- | -------------------- | ---------------------------------------------------- |
-| Mobile iOS     | React Native         | Interface primária do usuário                        |
-| Mobile Android | React Native         | Interface primária do usuário                        |
-| Web            | Next.js 15           | Preview de eventos, acesso via links, gestão desktop |
-| Backend        | Supabase (BaaS)      | Autenticação, banco de dados, storage, regras de acesso (RLS) |
+| Plataforma     | Tech            | Responsabilidade principal                                    |
+| -------------- | --------------- | ------------------------------------------------------------- |
+| Mobile iOS     | React Native    | Interface primária do usuário                                 |
+| Mobile Android | React Native    | Interface primária do usuário                                 |
+| Web            | Next.js 15      | Preview de eventos, acesso via links, gestão desktop          |
+| Backend        | Supabase (BaaS) | Autenticação, banco de dados, storage, regras de acesso (RLS) |
 
 ### 9.2 Mobile — Capacidades Necessárias
 
@@ -350,7 +350,7 @@ Features previstas para versões futuras. **Não devem ser implementadas no MVP.
 
 ## 12. Histórico de Mudanças
 
-| Data       | Versão | Descrição |
-| ---------- | ------ | --------- |
-| Abril 2026 | 1.0    | Versão inicial da especificação |
+| Data       | Versão | Descrição                                                                                                                             |
+| ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Abril 2026 | 1.0    | Versão inicial da especificação                                                                                                       |
 | Maio 2026  | 1.1    | Pivô de arquitetura: NestJS + Prisma → Next.js 15 + Supabase BaaS; pasta `api/` removida do monorepo; `specs/` renomeada para `docs/` |
