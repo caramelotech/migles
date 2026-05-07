@@ -66,5 +66,9 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
-# Claude
+# Agents
 .claude/settings.*
+.codex/
+
+# Internal notes
+improvements.md
