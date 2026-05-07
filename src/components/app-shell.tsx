@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 }`}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
               </Link>
             );
@@ -131,11 +131,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={toggleTheme}
             className="flex-1 justify-start"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
             {theme === "dark" ? "Tema claro" : "Tema escuro"}
           </Button>
           <Button variant="ghost" size="icon" onClick={() => signOut()} aria-label="Sair">
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </aside>
@@ -161,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
                 {item.label}
               </Link>
             );
@@ -173,9 +173,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
           >
             {theme === "dark" ? (
-              <Sun className="h-5 w-5 text-primary" />
+              <Sun className="h-5 w-5 text-primary" aria-hidden="true" />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className="h-5 w-5" aria-hidden="true" />
             )}
             Tema
           </button>

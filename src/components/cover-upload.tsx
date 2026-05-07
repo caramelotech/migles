@@ -26,6 +26,7 @@ export function CoverUpload({ preview, onFileSelect, label, height = "h-40" }: P
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
+        aria-label={preview ? "Alterar imagem de capa" : "Selecionar imagem de capa"}
         className={`relative w-full ${height} rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors flex flex-col items-center justify-center gap-2 overflow-hidden`}
       >
         {preview ? (
@@ -36,7 +37,7 @@ export function CoverUpload({ preview, onFileSelect, label, height = "h-40" }: P
           />
         ) : (
           <>
-            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+            <ImagePlus className="h-8 w-8 text-muted-foreground" aria-hidden="true" />
             <span className="text-sm text-muted-foreground">Clique para adicionar capa</span>
           </>
         )}

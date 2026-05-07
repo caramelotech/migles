@@ -84,7 +84,10 @@ function LoginPageInner() {
       const result = await createUser(data.email, data.password, data.displayName);
 
       if ("error" in result) {
-        const msg = result.status === 409 ? "E-mail já cadastrado." : (result.error ?? "Erro ao criar conta.");
+        const msg =
+          result.status === 409
+            ? "E-mail já cadastrado."
+            : (result.error ?? "Erro ao criar conta.");
         toast.error(msg);
         return;
       }
@@ -189,8 +192,9 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center">
+        <div role="status" className="flex min-h-screen items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <span className="sr-only">Carregando…</span>
         </div>
       }
     >

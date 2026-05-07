@@ -109,10 +109,12 @@ export default function NewCommunityPage() {
 
         {/* Tipo */}
         <div className="space-y-2">
-          <Label>Tipo</Label>
-          <div className="grid grid-cols-2 gap-3">
+          <Label id="type-label">Tipo</Label>
+          <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-labelledby="type-label">
             <button
               type="button"
+              role="radio"
+              aria-checked={type === "public"}
               onClick={() => setType("public")}
               className={cn(
                 "rounded-xl border-2 p-4 text-left transition-colors",
@@ -122,7 +124,7 @@ export default function NewCommunityPage() {
               )}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <Globe className="h-4 w-4 text-primary" />
+                <Globe className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="font-semibold text-sm">Pública</span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -132,6 +134,8 @@ export default function NewCommunityPage() {
 
             <button
               type="button"
+              role="radio"
+              aria-checked={type === "private"}
               onClick={() => setType("private")}
               className={cn(
                 "rounded-xl border-2 p-4 text-left transition-colors",
@@ -141,7 +145,7 @@ export default function NewCommunityPage() {
               )}
             >
               <div className="flex items-center gap-2 mb-1.5">
-                <Lock className="h-4 w-4 text-primary" />
+                <Lock className="h-4 w-4 text-primary" aria-hidden="true" />
                 <span className="font-semibold text-sm">Privada</span>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -163,7 +167,7 @@ export default function NewCommunityPage() {
             Cancelar
           </Button>
           <Button type="submit" className="flex-1" disabled={submitting}>
-            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
             Criar comunidade
           </Button>
         </div>

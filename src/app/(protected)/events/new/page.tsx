@@ -91,8 +91,8 @@ export default function NewEventPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/events">
-            <ArrowLeft className="h-4 w-4" />
+          <Link href="/events" aria-label="Voltar para eventos">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Novo evento</h1>
@@ -242,7 +242,7 @@ export default function NewEventPage() {
             Cancelar
           </Button>
           <Button type="submit" className="flex-1" disabled={submitting}>
-            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
             Criar evento
           </Button>
         </div>

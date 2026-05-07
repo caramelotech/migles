@@ -149,8 +149,8 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/events/${eventId}`}>
-            <ArrowLeft className="h-4 w-4" />
+          <Link href={`/events/${eventId}`} aria-label="Voltar para o evento">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Editar evento</h1>
@@ -300,7 +300,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
             Cancelar
           </Button>
           <Button type="submit" className="flex-1" disabled={submitting}>
-            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
             Salvar
           </Button>
         </div>
@@ -315,7 +315,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
                 className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                 disabled={submitting}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                 Excluir evento
               </Button>
             </AlertDialogTrigger>

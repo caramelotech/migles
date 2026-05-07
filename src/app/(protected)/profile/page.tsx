@@ -93,7 +93,7 @@ export default function ProfilePage() {
           className="gap-1.5 text-muted-foreground hover:text-destructive"
           onClick={() => signOut()}
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4" aria-hidden="true" />
           Sair
         </Button>
       </div>
@@ -117,9 +117,10 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
+              aria-label="Alterar foto de perfil"
               className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center hover:bg-accent transition-colors shadow-sm"
             >
-              <Camera className="h-4 w-4" />
+              <Camera className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           <input
@@ -172,7 +173,7 @@ export default function ProfilePage() {
         </div>
 
         <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
-          {updateMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          {updateMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
           Salvar alterações
         </Button>
       </form>
