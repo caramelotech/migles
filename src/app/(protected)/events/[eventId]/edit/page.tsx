@@ -1,15 +1,18 @@
 "use client";
 
-import { use, useRef, useState, useEffect } from "react";
+import { use, useCallback, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getEvent, updateEvent, deleteEvent } from "@/services/events";
 import { listMyCommunities } from "@/services/communities";
 import { uploadCover } from "@/lib/upload-cover";
+import { eventSchema, type EventFormValues } from "@/schemas/eventSchema";
 import { Button } from "@/components/ui/button";
 import { CoverUpload } from "@/components/cover-upload";
 import { PageSpinner } from "@/components/page-spinner";
@@ -41,19 +44,33 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   const { user } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [locationType, setLocationType] = useState<"in_person" | "online">("in_person");
-  const [location, setLocation] = useState("");
-  const [startsAt, setStartsAt] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [visibility, setVisibility] = useState<"private" | "community">("private");
-  const [communityId, setCommunityId] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const initialized = useRef(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EventFormValues>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      location_type: "in_person",
+      location: "",
+      starts_at: "",
+      capacity: undefined,
+      visibility: "private",
+      community_id: undefined,
+    },
+  });
+
+  const locationType = watch("location_type");
+  const visibility = watch("visibility");
 
   const { data: event, isLoading: loadingEvent } = useQuery({
     queryKey: ["event", eventId],
@@ -67,41 +84,36 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     enabled: !!user,
   });
 
-  // Pre-fill form with existing event data
   useEffect(() => {
     if (event && !initialized.current) {
       initialized.current = true;
-      setTitle(event.title ?? "");
-      setDescription(event.description ?? "");
-      setLocationType((event.location_type as "in_person" | "online") ?? "in_person");
-      setLocation(event.location ?? "");
-      // Convert ISO to datetime-local format (YYYY-MM-DDTHH:mm)
+      let starts_at_local = "";
       if (event.starts_at) {
         const d = new Date(event.starts_at);
         const pad = (n: number) => String(n).padStart(2, "0");
-        const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-        setStartsAt(local);
+        starts_at_local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       }
-      setCapacity(event.capacity != null ? String(event.capacity) : "");
-      setVisibility((event.visibility as "private" | "community") ?? "private");
-      setCommunityId(event.community_id ?? "");
+      reset({
+        title: event.title ?? "",
+        description: event.description ?? "",
+        location_type: (event.location_type as "in_person" | "online") ?? "in_person",
+        location: event.location ?? "",
+        starts_at: starts_at_local,
+        capacity: event.capacity ?? undefined,
+        visibility: (event.visibility as "private" | "community") ?? "private",
+        community_id: event.community_id ?? undefined,
+      });
       setCoverPreview(event.cover_url ?? null);
     }
-  }, [event]);
+  }, [event, reset]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const handleCoverSelect = useCallback((file: File, url: string) => {
+    setCoverFile(file);
+    setCoverPreview(url);
+  }, []);
+
+  const onSubmit = async (data: EventFormValues) => {
     if (!user) return;
-    if (!title.trim()) {
-      toast.error("O título é obrigatório.");
-      return;
-    }
-    if (!startsAt) {
-      toast.error("A data e hora são obrigatórias.");
-      return;
-    }
-
-    setSubmitting(true);
     try {
       let cover_url: string | null | undefined = undefined;
       if (coverFile) {
@@ -109,13 +121,13 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       }
 
       await updateEvent(eventId, {
-        title: title.trim(),
-        description: description.trim() || null,
-        location: locationType === "in_person" ? location.trim() || null : null,
-        location_type: locationType,
-        starts_at: new Date(startsAt).toISOString(),
-        capacity: capacity ? Number(capacity) : null,
-        visibility,
+        title: data.title.trim(),
+        description: data.description?.trim() || null,
+        location: data.location_type === "in_person" ? data.location?.trim() || null : null,
+        location_type: data.location_type,
+        starts_at: new Date(data.starts_at).toISOString(),
+        capacity: data.capacity ?? null,
+        visibility: data.visibility,
         ...(cover_url !== undefined ? { cover_url } : {}),
       });
 
@@ -123,10 +135,8 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       router.push(`/events/${eventId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao atualizar evento.");
-    } finally {
-      setSubmitting(false);
     }
-  }
+  };
 
   async function handleDelete() {
     try {
@@ -146,7 +156,6 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
 
   return (
     <div className="space-y-6 w-full">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link href={`/events/${eventId}`} aria-label="Voltar para o evento">
@@ -156,156 +165,149 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         <h1 className="text-2xl font-bold tracking-tight">Editar evento</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <CoverUpload
           preview={coverPreview}
-          onFileSelect={(file, url) => {
-            setCoverFile(file);
-            setCoverPreview(url);
-          }}
+          onFileSelect={handleCoverSelect}
           label="Capa do evento"
         />
 
-        {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title">
             Título <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
             placeholder="Nome do evento"
-            required
+            autoComplete="off"
+            spellCheck={false}
+            {...register("title")}
           />
+          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
 
-        {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="description">Descrição</Label>
           <Textarea
             id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Fale um pouco sobre o evento..."
+            placeholder="Fale um pouco sobre o evento…"
             rows={4}
+            {...register("description")}
           />
         </div>
 
-        {/* Location type */}
         <div className="space-y-2">
           <Label htmlFor="location-type">Tipo de local</Label>
-          <Select
-            value={locationType}
-            onValueChange={(v) => setLocationType(v as "in_person" | "online")}
-          >
-            <SelectTrigger id="location-type">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="in_person">Presencial</SelectItem>
-              <SelectItem value="online">Online</SelectItem>
-            </SelectContent>
-          </Select>
+          <Controller
+            control={control}
+            name="location_type"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="location-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in_person">Presencial</SelectItem>
+                  <SelectItem value="online">Online</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
 
-        {/* Location (only for in_person) */}
         {locationType === "in_person" && (
           <div className="space-y-2">
             <Label htmlFor="location">Endereço / local</Label>
             <Input
               id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
               placeholder="Ex: Rua das Flores, 100 - São Paulo"
+              autoComplete="street-address"
+              {...register("location")}
             />
           </div>
         )}
 
-        {/* Date/time */}
         <div className="space-y-2">
           <Label htmlFor="starts-at">
             Data e hora <span className="text-destructive">*</span>
           </Label>
-          <Input
-            id="starts-at"
-            type="datetime-local"
-            value={startsAt}
-            onChange={(e) => setStartsAt(e.target.value)}
-            required
-          />
+          <Input id="starts-at" type="datetime-local" {...register("starts_at")} />
+          {errors.starts_at && <p className="text-xs text-destructive">{errors.starts_at.message}</p>}
         </div>
 
-        {/* Capacity */}
         <div className="space-y-2">
           <Label htmlFor="capacity">Capacidade (opcional)</Label>
           <Input
             id="capacity"
             type="number"
             min="1"
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
             placeholder="Ilimitado"
+            {...register("capacity", {
+              setValueAs: (v: string) => (v === "" ? undefined : Number.parseInt(v, 10)),
+            })}
+          />
+          {errors.capacity && <p className="text-xs text-destructive">{errors.capacity.message}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="visibility">Visibilidade</Label>
+          <Controller
+            control={control}
+            name="visibility"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="visibility">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="private">Privado</SelectItem>
+                  <SelectItem value="community">Comunidade</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
 
-        {/* Visibility */}
-        <div className="space-y-2">
-          <Label htmlFor="visibility">Visibilidade</Label>
-          <Select
-            value={visibility}
-            onValueChange={(v) => {
-              setVisibility(v as "private" | "community");
-              if (v !== "community") setCommunityId("");
-            }}
-          >
-            <SelectTrigger id="visibility">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="private">Privado</SelectItem>
-              <SelectItem value="community">Comunidade</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Community (only if visibility = community) */}
         {visibility === "community" && (
           <div className="space-y-2">
             <Label htmlFor="community">Comunidade</Label>
-            <Select value={communityId} onValueChange={setCommunityId}>
-              <SelectTrigger id="community">
-                <SelectValue placeholder="Selecione uma comunidade" />
-              </SelectTrigger>
-              <SelectContent>
-                {memberships.map(({ community }) => (
-                  <SelectItem key={community.id} value={community.id}>
-                    {community.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              control={control}
+              name="community_id"
+              render={({ field }) => (
+                <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                  <SelectTrigger id="community">
+                    <SelectValue placeholder="Selecione uma comunidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {memberships.map(({ community }) => (
+                      <SelectItem key={community.id} value={community.id}>
+                        {community.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex gap-3 pt-2">
           <Button
             type="button"
             variant="outline"
             className="flex-1"
             onClick={() => router.push(`/events/${eventId}`)}
-            disabled={submitting}
+            disabled={isSubmitting}
           >
             Cancelar
           </Button>
-          <Button type="submit" className="flex-1" disabled={submitting}>
-            {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
-            Salvar
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
+            Salvar alterações
           </Button>
         </div>
 
-        {/* Delete */}
         <div className="pt-4 border-t border-border">
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -313,7 +315,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
                 type="button"
                 variant="ghost"
                 className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                disabled={submitting}
+                disabled={isSubmitting}
               >
                 <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
                 Excluir evento

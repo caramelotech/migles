@@ -2,11 +2,14 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getProfile, updateProfile } from "@/services/profiles";
 import { uploadCover } from "@/lib/upload-cover";
+import { profileSchema, type ProfileFormValues } from "@/schemas/profileSchema";
 import { Button } from "@/components/ui/button";
 import { PageSpinner } from "@/components/page-spinner";
 import { Input } from "@/components/ui/input";
@@ -24,12 +27,23 @@ export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
 
-  const [displayName, setDisplayName] = useState("");
-  const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const initialized = useRef(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { display_name: "", bio: "" },
+  });
+
+  const displayName = watch("display_name");
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -40,22 +54,24 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile && !initialized.current) {
       initialized.current = true;
-      setDisplayName(profile.display_name ?? "");
-      setBio(profile.bio ?? "");
+      reset({
+        display_name: profile.display_name ?? "",
+        bio: profile.bio ?? "",
+      });
       setAvatarPreview(profile.avatar_url ?? null);
     }
-  }, [profile]);
+  }, [profile, reset]);
 
   const updateMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: ProfileFormValues) => {
       if (!user) throw new Error("Não autenticado.");
       let avatar_url: string | null | undefined = undefined;
       if (avatarFile) {
         avatar_url = await uploadCover(user.id, avatarFile);
       }
       return updateProfile(user.id, {
-        display_name: displayName.trim() || undefined,
-        bio: bio.trim() || null,
+        display_name: data.display_name.trim() || undefined,
+        bio: data.bio?.trim() || null,
         ...(avatar_url !== undefined ? { avatar_url } : {}),
       });
     },
@@ -76,11 +92,6 @@ export default function ProfilePage() {
     setAvatarPreview(URL.createObjectURL(file));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    updateMutation.mutate();
-  }
-
   if (isLoading) return <PageSpinner />;
 
   return (
@@ -98,8 +109,7 @@ export default function ProfilePage() {
         </Button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Avatar */}
+      <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-6">
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
             <div
@@ -141,7 +151,6 @@ export default function ProfilePage() {
 
         <Separator />
 
-        {/* Info somente leitura */}
         <div className="space-y-1">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             E-mail
@@ -149,31 +158,33 @@ export default function ProfilePage() {
           <p className="text-sm">{user?.email ?? profile?.email ?? "-"}</p>
         </div>
 
-        {/* Nome */}
         <div className="space-y-2">
           <Label htmlFor="display-name">Nome</Label>
           <Input
             id="display-name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Seu nome"
+            autoComplete="name"
+            {...register("display_name")}
           />
+          {errors.display_name && (
+            <p className="text-xs text-destructive">{errors.display_name.message}</p>
+          )}
         </div>
 
-        {/* Bio */}
         <div className="space-y-2">
           <Label htmlFor="bio">Bio</Label>
           <Textarea
             id="bio"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Conte um pouco sobre você..."
+            placeholder="Conte um pouco sobre você…"
             rows={3}
+            {...register("bio")}
           />
         </div>
 
         <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
-          {updateMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
+          {updateMutation.isPending && (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+          )}
           Salvar alterações
         </Button>
       </form>

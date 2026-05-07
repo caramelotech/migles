@@ -7,21 +7,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { createUser } from "@/app/actions/auth";
+import { signInSchema, signUpSchema } from "@/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-const signUpSchema = z.object({
-  displayName: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(6),
-});
 
 function LoginPageInner() {
   const router = useRouter();
