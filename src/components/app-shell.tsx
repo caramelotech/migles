@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Home, Plus, User, Sun, Moon, LogOut, Menu } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
@@ -31,7 +32,6 @@ function dotColor(id: string) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -56,25 +56,25 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 lg:w-64 shrink-0 border-r border-border flex-col sticky top-0 h-screen">
-        <div
-          className="px-4 h-14 flex items-center gap-2 font-semibold tracking-tight cursor-pointer hover:opacity-80"
-          onClick={() => router.push("/events")}
+        <Link
+          href="/events"
+          className="px-4 h-14 flex items-center gap-2 font-semibold tracking-tight hover:opacity-80"
         >
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold">
             M
           </span>
           migles
-        </div>
+        </Link>
 
         <nav className="px-2 py-2 flex flex-col gap-0.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
             return (
-              <button
+              <Link
                 key={item.href}
-                onClick={() => router.push(item.href)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full text-left ${
+                href={item.href}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full ${
                   active
                     ? "bg-accent text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -82,18 +82,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
-              </button>
+              </Link>
             );
           })}
         </nav>
 
         <div className="mt-4 px-4">
-          <button
-            onClick={() => router.push("/communities")}
+          <Link
+            href="/communities"
             className="text-xs font-medium tracking-wider text-muted-foreground uppercase hover:text-foreground transition-colors"
           >
             Comunidades
-          </button>
+          </Link>
         </div>
         <div className="mt-2 px-2 flex-1 overflow-y-auto">
           {memberships.length === 0 ? (
@@ -106,9 +106,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 const active = pathname === `/communities/${community.id}`;
                 return (
                   <li key={community.id}>
-                    <button
-                      onClick={() => router.push(`/communities/${community.id}`)}
-                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors w-full text-left ${
+                    <Link
+                      href={`/communities/${community.id}`}
+                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm transition-colors w-full ${
                         active
                           ? "bg-accent text-foreground"
                           : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -116,7 +116,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       <span className={`h-2 w-2 rounded-full ${dotColor(community.id)}`} />
                       <span className="truncate">{community.name}</span>
-                    </button>
+                    </Link>
                   </li>
                 );
               })}
@@ -154,16 +154,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             const Icon = item.icon;
             const active = isActive(item.href);
             return (
-              <button
+              <Link
                 key={item.href}
-                onClick={() => router.push(item.href)}
+                href={item.href}
                 className={`flex flex-col items-center justify-center gap-1 py-2.5 text-xs transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 <Icon className="h-5 w-5" />
                 {item.label}
-              </button>
+              </Link>
             );
           })}
           <button

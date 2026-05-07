@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useRef, useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
@@ -147,8 +148,10 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     <div className="space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => router.push(`/events/${eventId}`)}>
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/events/${eventId}`}>
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Editar evento</h1>
       </div>

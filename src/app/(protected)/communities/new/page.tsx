@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -61,8 +62,10 @@ export default function NewCommunityPage() {
     <div className="space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/communities")}>
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/communities">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">Nova comunidade</h1>
       </div>

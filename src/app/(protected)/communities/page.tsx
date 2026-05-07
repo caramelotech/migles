@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Search, Users, Lock, Globe } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -36,18 +36,18 @@ function avatarColor(id: string) {
 function CommunityCard({
   community,
   role,
-  onClick,
+  href,
 }: {
   community: CommunityRow;
   role?: "admin" | "member";
-  onClick: () => void;
+  href: string;
 }) {
   const initial = community.name.charAt(0).toUpperCase();
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
+    <Link
+      href={href}
+      className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
     >
       <div
         className={cn(
@@ -92,13 +92,12 @@ function CommunityCard({
           )}
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 
 export default function CommunitiesPage() {
   const { user } = useAuth();
-  const router = useRouter();
   const [query, setQuery] = useState("");
 
   const { data: memberships = [], isLoading: loadingMine } = useQuery({
@@ -125,9 +124,11 @@ export default function CommunitiesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Comunidades</h1>
-        <Button size="sm" onClick={() => router.push("/communities/new")}>
-          <Plus className="h-4 w-4 mr-1" />
-          Nova
+        <Button size="sm" asChild>
+          <Link href="/communities/new">
+            <Plus className="h-4 w-4 mr-1" />
+            Nova
+          </Link>
         </Button>
       </div>
 
@@ -157,9 +158,11 @@ export default function CommunitiesPage() {
                 Crie uma nova ou busque comunidades para entrar.
               </p>
             </div>
-            <Button onClick={() => router.push("/communities/new")}>
-              <Plus className="h-4 w-4 mr-1" />
-              Criar comunidade
+            <Button asChild>
+              <Link href="/communities/new">
+                <Plus className="h-4 w-4 mr-1" />
+                Criar comunidade
+              </Link>
             </Button>
           </div>
         ) : (
@@ -169,7 +172,7 @@ export default function CommunitiesPage() {
                 key={community.id}
                 community={community}
                 role={role as "admin" | "member"}
-                onClick={() => router.push(`/communities/${community.id}`)}
+                href={`/communities/${community.id}`}
               />
             ))}
           </div>
@@ -195,7 +198,7 @@ export default function CommunitiesPage() {
                 <CommunityCard
                   key={community.id}
                   community={community}
-                  onClick={() => router.push(`/communities/${community.id}`)}
+                  href={`/communities/${community.id}`}
                 />
               ))}
             </div>

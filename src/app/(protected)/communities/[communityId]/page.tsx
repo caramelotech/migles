@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -157,14 +158,11 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
   return (
     <div className="space-y-6 w-full">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="gap-1.5 -ml-2"
-        onClick={() => router.push("/communities")}
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Comunidades
+      <Button variant="ghost" size="sm" className="gap-1.5 -ml-2" asChild>
+        <Link href="/communities">
+          <ArrowLeft className="h-4 w-4" />
+          Comunidades
+        </Link>
       </Button>
 
       {/* Cover / Header */}
@@ -209,13 +207,11 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
             <div className="shrink-0 flex gap-2">
               {isAdmin ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => router.push(`/communities/${communityId}/edit`)}
-                >
-                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                  Editar
+                <Button size="sm" variant="outline" asChild>
+                  <Link href={`/communities/${communityId}/edit`}>
+                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                    Editar
+                  </Link>
                 </Button>
               ) : isMember ? (
                 <Button
@@ -366,10 +362,10 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
         ) : (
           <div className="flex flex-col gap-2">
             {events.map((event) => (
-              <button
+              <Link
                 key={event.id}
-                onClick={() => router.push(`/events/${event.id}`)}
-                className="w-full text-left rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
+                href={`/events/${event.id}`}
+                className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
               >
                 {event.cover_url && (
                   <img
@@ -385,7 +381,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                     {formatEventDate(event.starts_at)}
                   </span>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         )}

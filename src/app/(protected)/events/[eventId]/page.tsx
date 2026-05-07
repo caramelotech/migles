@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -54,25 +55,21 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const { data: event, isLoading: loadingEvent } = useQuery({
     queryKey: ["event", eventId],
     queryFn: () => getEvent(eventId),
-    enabled: !!eventId,
   });
 
   const { data: organizerIds = [] } = useQuery({
     queryKey: ["event-organizers", eventId],
     queryFn: () => getEventOrganizerIds(eventId),
-    enabled: !!eventId,
   });
 
   const { data: rsvps = [] } = useQuery({
     queryKey: ["event-rsvps", eventId],
     queryFn: () => getEventRsvps(eventId),
-    enabled: !!eventId,
   });
 
   const { data: comments = [] } = useQuery({
     queryKey: ["event-comments", eventId],
     queryFn: () => listEventComments(eventId),
-    enabled: !!eventId,
   });
 
   const isOrganizer = user ? organizerIds.includes(user.id) : false;
@@ -162,18 +159,18 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
     <div className="space-y-6 w-full">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-2">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/events")}>
-          <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/events">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
         </Button>
         <div className="flex items-center gap-2">
           {isOrganizer && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push(`/events/${eventId}/edit`)}
-            >
-              <Pencil className="h-4 w-4 mr-1" />
-              Editar
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/events/${eventId}/edit`}>
+                <Pencil className="h-4 w-4 mr-1" />
+                Editar
+              </Link>
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>

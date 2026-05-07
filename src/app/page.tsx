@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,9 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between h-20">
           <h1 className="text-2xl font-bold">Migles</h1>
-          <Button onClick={() => router.push("/login")}>Entrar</Button>
+          <Button asChild>
+            <Link href="/login">Entrar</Link>
+          </Button>
         </nav>
 
         <section className="py-20 text-center">

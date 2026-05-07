@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { CalendarDays, LinkIcon, Check, X } from "lucide-react";
@@ -119,12 +120,12 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
               </Button>
             </div>
 
-            <button
-              onClick={() => router.push(`/events/${event.id}`)}
+            <Link
+              href={`/events/${event.id}`}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Ver detalhes do evento
-            </button>
+            </Link>
           </>
         ) : (
           <>

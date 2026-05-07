@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { CalendarDays, MapPin, Wifi, Plus, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { listMyEvents, type EventWithCounts, type RsvpStatus } from "@/services/events";
@@ -36,13 +36,13 @@ function rsvpBadge(status: RsvpStatus | null) {
   return <Badge variant="outline">Participar</Badge>;
 }
 
-function EventCard({ event, onClick }: { event: EventWithCounts; onClick: () => void }) {
+function EventCard({ event, href }: { event: EventWithCounts; href: string }) {
   const isOnline = event.location_type === "online";
 
   return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex gap-4"
+    <Link
+      href={href}
+      className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex gap-4"
     >
       {event.cover_url && (
         <img
@@ -83,13 +83,12 @@ function EventCard({ event, onClick }: { event: EventWithCounts; onClick: () => 
           </span>
         </div>
       </div>
-    </button>
+    </Link>
   );
 }
 
 export default function EventsPage() {
   const { user } = useAuth();
-  const router = useRouter();
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["my-events", user?.id],
@@ -108,9 +107,11 @@ export default function EventsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Eventos</h1>
-        <Button size="sm" onClick={() => router.push("/events/new")}>
-          <Plus className="h-4 w-4 mr-1" />
-          Criar
+        <Button size="sm" asChild>
+          <Link href="/events/new">
+            <Plus className="h-4 w-4 mr-1" />
+            Criar
+          </Link>
         </Button>
       </div>
 
@@ -126,9 +127,11 @@ export default function EventsPage() {
               Crie seu primeiro evento ou aguarde um convite.
             </p>
           </div>
-          <Button onClick={() => router.push("/events/new")}>
-            <Plus className="h-4 w-4 mr-1" />
-            Criar evento
+          <Button asChild>
+            <Link href="/events/new">
+              <Plus className="h-4 w-4 mr-1" />
+              Criar evento
+            </Link>
           </Button>
         </div>
       )}
@@ -142,7 +145,7 @@ export default function EventsPage() {
               <EventCard
                 key={event.id}
                 event={event}
-                onClick={() => router.push(`/events/${event.id}`)}
+                href={`/events/${event.id}`}
               />
             ))}
           </div>
@@ -158,7 +161,7 @@ export default function EventsPage() {
               <EventCard
                 key={event.id}
                 event={event}
-                onClick={() => router.push(`/events/${event.id}`)}
+                href={`/events/${event.id}`}
               />
             ))}
           </div>
