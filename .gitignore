@@ -69,6 +69,3 @@ Thumbs.db
 # Agents
 .claude/settings.*
 .codex/
-
-# Internal notes
-improvements.md

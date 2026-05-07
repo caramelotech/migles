@@ -24,6 +24,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
+    const metaThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.content = theme === "dark" ? "#383630" : "#f5f4f0";
+    }
     try {
       localStorage.setItem(STORAGE_KEY, theme);
     } catch (error) {
