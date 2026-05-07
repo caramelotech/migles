@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Globe, Lock, Trash2 } from "lucide-react";
@@ -48,6 +48,7 @@ export default function EditCommunityPage({
   const [type, setType] = useState<CommunityType>("public");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const initialized = useRef(false);
 
   const { data: community, isLoading } = useQuery({
     queryKey: ["community", communityId],
@@ -55,7 +56,8 @@ export default function EditCommunityPage({
   });
 
   useEffect(() => {
-    if (community) {
+    if (community && !initialized.current) {
+      initialized.current = true;
       setName(community.name);
       setDescription(community.description ?? "");
       setType(community.type as CommunityType);

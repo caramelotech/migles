@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const initialized = useRef(false);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -37,7 +38,8 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !initialized.current) {
+      initialized.current = true;
       setDisplayName(profile.display_name ?? "");
       setBio(profile.bio ?? "");
       setAvatarPreview(profile.avatar_url ?? null);

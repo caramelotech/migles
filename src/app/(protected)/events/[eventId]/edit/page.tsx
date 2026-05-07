@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
@@ -52,7 +52,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [initialized, setInitialized] = useState(false);
+  const initialized = useRef(false);
 
   const { data: event, isLoading: loadingEvent } = useQuery({
     queryKey: ["event", eventId],
@@ -68,7 +68,8 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
 
   // Pre-fill form with existing event data
   useEffect(() => {
-    if (event && !initialized) {
+    if (event && !initialized.current) {
+      initialized.current = true;
       setTitle(event.title ?? "");
       setDescription(event.description ?? "");
       setLocationType((event.location_type as "in_person" | "online") ?? "in_person");
@@ -84,9 +85,8 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       setVisibility((event.visibility as "private" | "community") ?? "private");
       setCommunityId(event.community_id ?? "");
       setCoverPreview(event.cover_url ?? null);
-      setInitialized(true);
     }
-  }, [event, initialized]);
+  }, [event]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

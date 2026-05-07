@@ -37,10 +37,10 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
     mutationFn: () => inviteUserToEvent(event!.id, user!.id),
   });
 
+  const { mutate: ensurePendingMutate } = ensurePending;
   useEffect(() => {
-    if (event && user) ensurePending.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event?.id, user?.id]);
+    if (event?.id && user?.id) ensurePendingMutate();
+  }, [event?.id, user?.id, ensurePendingMutate]);
 
   const rsvpMutation = useMutation({
     mutationFn: (status: RsvpStatus) => setRsvp(event!.id, user!.id, status),

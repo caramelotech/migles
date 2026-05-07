@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,18 +22,18 @@ const signUpSchema = z.object({
   password: z.string().min(6),
 });
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
-      const params = new URLSearchParams(window.location.search);
-      const redirect = params.get("redirect") || "/events";
+      const redirect = searchParams.get("redirect") || "/events";
       router.push(redirect);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, searchParams]);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -192,5 +192,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
   );
 }
