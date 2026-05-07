@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PageSpinner } from "@/components/page-spinner";
+import { SectionHeading } from "@/components/section-heading";
 
 function avatarColor(id: string) {
   const palette = [
@@ -116,13 +118,7 @@ export default function CommunitiesPage() {
   const myIds = new Set(memberships.map((m) => m.community.id));
   const discoveryResults = publicResults.filter((c) => !myIds.has(c.id));
 
-  if (loadingMine) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (loadingMine) return <PageSpinner />;
 
   return (
     <div className="space-y-6">
@@ -148,9 +144,7 @@ export default function CommunitiesPage() {
 
       {/* Minhas comunidades */}
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Minhas comunidades
-        </h2>
+        <SectionHeading>Minhas comunidades</SectionHeading>
 
         {memberships.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
@@ -185,9 +179,7 @@ export default function CommunitiesPage() {
       {/* Descobrir - só aparece quando buscando */}
       {searchEnabled && (
         <section className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Descobrir
-          </h2>
+          <SectionHeading>Descobrir</SectionHeading>
 
           {loadingSearch ? (
             <div className="flex justify-center py-8">

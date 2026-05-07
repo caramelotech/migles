@@ -13,7 +13,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/user-avatar";
 import { inviteUserToEvent } from "@/services/events";
 import { searchProfiles } from "@/services/profiles";
 
@@ -144,12 +144,7 @@ export function ShareEventDialog({
                       key={p.id}
                       className="flex items-center gap-3 rounded-md p-2 hover:bg-muted/50"
                     >
-                      <Avatar className="h-8 w-8">
-                        {p.avatar_url && <AvatarImage src={p.avatar_url} alt={name} />}
-                        <AvatarFallback className="text-xs">
-                          {name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar name={name} avatarUrl={p.avatar_url} />
                       <span className="flex-1 truncate text-sm">{name}</span>
                       <Button
                         type="button"

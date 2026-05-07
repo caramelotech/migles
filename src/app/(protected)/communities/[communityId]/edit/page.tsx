@@ -1,9 +1,9 @@
 "use client";
 
-import { use, useState, useRef, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ImagePlus, Loader2, Globe, Lock, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Globe, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -29,6 +29,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { CoverUpload } from "@/components/cover-upload";
+import { PageSpinner } from "@/components/page-spinner";
+import { NotFound } from "@/components/not-found";
 
 export default function EditCommunityPage({
   params,
@@ -45,7 +48,6 @@ export default function EditCommunityPage({
   const [type, setType] = useState<CommunityType>("public");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: community, isLoading } = useQuery({
     queryKey: ["community", communityId],
@@ -97,13 +99,6 @@ export default function EditCommunityPage({
     },
   });
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setCoverFile(file);
-    setCoverPreview(URL.createObjectURL(file));
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
@@ -113,24 +108,12 @@ export default function EditCommunityPage({
     updateMutation.mutate();
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageSpinner />;
 
-  if (!community) {
+  if (!community)
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-        <p className="font-semibold">Comunidade não encontrada.</p>
-        <Button variant="outline" onClick={() => router.push("/communities")}>
-          Voltar
-        </Button>
-      </div>
+      <NotFound message="Comunidade não encontrada." onBack={() => router.push("/communities")} />
     );
-  }
 
   if (user?.id !== community.created_by) {
     return (
@@ -147,7 +130,7 @@ export default function EditCommunityPage({
   }
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button
@@ -161,35 +144,15 @@ export default function EditCommunityPage({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Cover */}
-        <div className="space-y-2">
-          <Label>Capa da comunidade</Label>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="relative w-full h-36 rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors flex flex-col items-center justify-center gap-2 overflow-hidden"
-          >
-            {coverPreview ? (
-              <img
-                src={coverPreview}
-                alt="Preview da capa"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <>
-                <ImagePlus className="h-8 w-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Clique para alterar a capa</span>
-              </>
-            )}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </div>
+        <CoverUpload
+          preview={coverPreview}
+          onFileSelect={(file, url) => {
+            setCoverFile(file);
+            setCoverPreview(url);
+          }}
+          label="Capa da comunidade"
+          height="h-36"
+        />
 
         {/* Nome */}
         <div className="space-y-2">

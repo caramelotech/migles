@@ -9,6 +9,8 @@ import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PageSpinner } from "@/components/page-spinner";
+import { SectionHeading } from "@/components/section-heading";
 
 function rsvpBadge(status: RsvpStatus | null) {
   if (status === "confirmed")
@@ -99,13 +101,7 @@ export default function EventsPage() {
   const upcoming = events.filter((e) => new Date(e.starts_at) >= now);
   const past = events.filter((e) => new Date(e.starts_at) < now);
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageSpinner />;
 
   return (
     <div className="space-y-6">
@@ -140,9 +136,7 @@ export default function EventsPage() {
       {/* Upcoming */}
       {upcoming.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Próximos
-          </h2>
+          <SectionHeading>Próximos</SectionHeading>
           <div className="flex flex-col gap-2">
             {upcoming.map((event) => (
               <EventCard
@@ -158,9 +152,7 @@ export default function EventsPage() {
       {/* Past */}
       {past.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            Passados
-          </h2>
+          <SectionHeading>Passados</SectionHeading>
           <div className={cn("flex flex-col gap-2", upcoming.length > 0 && "opacity-60")}>
             {past.map((event) => (
               <EventCard

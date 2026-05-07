@@ -32,21 +32,13 @@ import {
 import { formatEventDate, formatRelativeDate } from "@/lib/format";
 import { ShareEventDialog } from "@/components/share-event-dialog";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-
-function initials(name: string | null | undefined) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+import { UserAvatar } from "@/components/user-avatar";
+import { PageSpinner } from "@/components/page-spinner";
+import { NotFound } from "@/components/not-found";
 
 export default function EventPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params);
@@ -155,24 +147,10 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
     }
   }
 
-  if (loadingEvent) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (loadingEvent) return <PageSpinner />;
 
-  if (!event) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-        <p className="text-muted-foreground">Evento não encontrado.</p>
-        <Button variant="outline" onClick={() => router.push("/events")}>
-          Voltar
-        </Button>
-      </div>
-    );
-  }
+  if (!event)
+    return <NotFound message="Evento não encontrado." onBack={() => router.push("/events")} />;
 
   const isOnline = event.location_type === "online";
   const communityData = (event as unknown as { communities: { id: string; name: string } | null })
@@ -181,7 +159,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const rsvpUserIds = (rsvps as Array<{ user_id: string }>).map((r) => r.user_id);
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-2">
         <Button variant="ghost" size="icon" onClick={() => router.push("/events")}>
@@ -309,10 +287,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
               const name = profile?.display_name ?? "Usuário";
               return (
                 <div key={r.user_id} className="flex flex-col items-center gap-1">
-                  <Avatar className="h-10 w-10">
-                    {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={name} />}
-                    <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar name={name} avatarUrl={profile?.avatar_url} size="lg" />
                   <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
                     {name}
                   </span>
@@ -349,10 +324,11 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             const canDelete = user?.id === c.user_id || isOrganizer;
             return (
               <div key={c.id} className="flex gap-3 group">
-                <Avatar className="h-8 w-8 shrink-0 mt-0.5">
-                  {c.profiles?.avatar_url && <AvatarImage src={c.profiles.avatar_url} alt={name} />}
-                  <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  name={name}
+                  avatarUrl={c.profiles?.avatar_url}
+                  className="shrink-0 mt-0.5"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
                     <span className="text-sm font-medium">{name}</span>
@@ -438,10 +414,12 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                         key={r.user_id}
                         className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/30 transition-colors"
                       >
-                        <Avatar className="h-7 w-7 shrink-0">
-                          {avatarUrl && <AvatarImage src={avatarUrl} alt={name} />}
-                          <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
-                        </Avatar>
+                        <UserAvatar
+                          name={name}
+                          avatarUrl={avatarUrl}
+                          size="sm"
+                          className="shrink-0"
+                        />
                         <span className="flex-1 text-sm truncate">{name}</span>
                         {r.status === "waitlisted" && r.waitlist_position != null && (
                           <span className="text-xs text-muted-foreground">

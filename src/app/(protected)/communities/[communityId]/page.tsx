@@ -36,7 +36,6 @@ import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,16 +53,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-function initials(name: string | null | undefined) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-}
+import { UserAvatar } from "@/components/user-avatar";
+import { PageSpinner } from "@/components/page-spinner";
+import { NotFound } from "@/components/not-found";
+import { SectionHeading } from "@/components/section-heading";
 
 type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
 
@@ -155,27 +148,15 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
     setPendingAction(null);
   }
 
-  if (loadingCommunity) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (loadingCommunity) return <PageSpinner />;
 
-  if (!community) {
+  if (!community)
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-        <p className="font-semibold">Comunidade não encontrada.</p>
-        <Button variant="outline" onClick={() => router.push("/communities")}>
-          Voltar
-        </Button>
-      </div>
+      <NotFound message="Comunidade não encontrada." onBack={() => router.push("/communities")} />
     );
-  }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 w-full">
       <Button
         variant="ghost"
         size="sm"
@@ -274,9 +255,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
         <section className="space-y-3">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Membros {!loadingMembers && `(${members.length})`}
-            </h2>
+            <SectionHeading>Membros {!loadingMembers && `(${members.length})`}</SectionHeading>
           </div>
 
           {loadingMembers ? (
@@ -294,12 +273,11 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                     key={m.id}
                     className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/30 transition-colors"
                   >
-                    <Avatar className="h-8 w-8 shrink-0">
-                      {m.profiles?.avatar_url && (
-                        <AvatarImage src={m.profiles.avatar_url} alt={name} />
-                      )}
-                      <AvatarFallback className="text-xs">{initials(name)}</AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      name={name}
+                      avatarUrl={m.profiles?.avatar_url}
+                      className="shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium truncate block">
                         {name}
@@ -374,9 +352,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
       {/* Events */}
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Eventos
-        </h2>
+        <SectionHeading>Eventos</SectionHeading>
 
         {loadingEvents ? (
           <div className="flex justify-center py-8">

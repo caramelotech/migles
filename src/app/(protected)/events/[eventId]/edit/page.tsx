@@ -1,15 +1,18 @@
 "use client";
 
-import { use, useState, useRef, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getEvent, updateEvent, deleteEvent } from "@/services/events";
 import { listMyCommunities } from "@/services/communities";
 import { uploadCover } from "@/lib/upload-cover";
 import { Button } from "@/components/ui/button";
+import { CoverUpload } from "@/components/cover-upload";
+import { PageSpinner } from "@/components/page-spinner";
+import { NotFound } from "@/components/not-found";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +40,6 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   const { user } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -85,14 +87,6 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       setInitialized(true);
     }
   }, [event, initialized]);
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setCoverFile(file);
-    const url = URL.createObjectURL(file);
-    setCoverPreview(url);
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,27 +138,13 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     }
   }
 
-  if (loadingEvent) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (loadingEvent) return <PageSpinner />;
 
-  if (!event) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-        <p className="text-muted-foreground">Evento não encontrado.</p>
-        <Button variant="outline" onClick={() => router.push("/events")}>
-          Voltar
-        </Button>
-      </div>
-    );
-  }
+  if (!event)
+    return <NotFound message="Evento não encontrado." onBack={() => router.push("/events")} />;
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-6 w-full">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => router.push(`/events/${eventId}`)}>
@@ -174,35 +154,14 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Cover image */}
-        <div className="space-y-2">
-          <Label>Capa do evento</Label>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="relative w-full h-40 rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/50 transition-colors flex flex-col items-center justify-center gap-2 overflow-hidden"
-          >
-            {coverPreview ? (
-              <img
-                src={coverPreview}
-                alt="Preview da capa"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <>
-                <ImagePlus className="h-8 w-8 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Clique para alterar a capa</span>
-              </>
-            )}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-        </div>
+        <CoverUpload
+          preview={coverPreview}
+          onFileSelect={(file, url) => {
+            setCoverFile(file);
+            setCoverPreview(url);
+          }}
+          label="Capa do evento"
+        />
 
         {/* Title */}
         <div className="space-y-2">

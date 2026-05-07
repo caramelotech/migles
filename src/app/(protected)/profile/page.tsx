@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { getProfile, updateProfile } from "@/services/profiles";
 import { uploadCover } from "@/lib/upload-cover";
 import { Button } from "@/components/ui/button";
+import { PageSpinner } from "@/components/page-spinner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,16 +79,10 @@ export default function ProfilePage() {
     updateMutation.mutate();
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageSpinner />;
 
   return (
-    <div className="space-y-6 max-w-lg">
+    <div className="space-y-6 w-full">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Perfil</h1>
         <Button
