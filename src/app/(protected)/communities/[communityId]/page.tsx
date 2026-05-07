@@ -58,6 +58,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
 import { SectionHeading } from "@/components/section-heading";
+import Image from "next/image";
 
 type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
 
@@ -168,11 +169,14 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
       {/* Cover / Header */}
       <div className="rounded-xl overflow-hidden border border-border bg-card">
         {community.cover_url ? (
-          <img
-            src={community.cover_url}
-            alt={community.name}
-            className="w-full h-40 object-cover"
-          />
+          <div className="relative w-full h-40">
+            <Image
+              src={community.cover_url}
+              alt={community.name}
+              fill
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div className="w-full h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
             <span className="text-5xl font-bold text-primary/40">
@@ -368,11 +372,15 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                 className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
               >
                 {event.cover_url && (
-                  <img
-                    src={event.cover_url}
-                    alt={event.title}
-                    className="h-12 w-12 rounded-lg object-cover shrink-0"
-                  />
+                  <div className="h-12 w-12 rounded-lg overflow-hidden shrink-0">
+                    <Image
+                      src={event.cover_url}
+                      alt={event.title}
+                      width={48}
+                      height={48}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{event.title}</p>

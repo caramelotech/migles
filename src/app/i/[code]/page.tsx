@@ -4,6 +4,7 @@ import { use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import Image from "next/image";
 import { CalendarDays, LinkIcon, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -95,11 +96,14 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
             )}
 
             {event.cover_url && (
-              <img
-                src={event.cover_url}
-                alt={event.title}
-                className="w-full rounded-xl object-cover h-44"
-              />
+              <div className="relative w-full h-44 rounded-xl overflow-hidden">
+                <Image
+                  src={event.cover_url}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             )}
 
             <div className="flex gap-3">
