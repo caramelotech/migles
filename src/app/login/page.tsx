@@ -6,6 +6,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { createUser } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,21 +81,10 @@ function LoginPageInner() {
         password: formData.get("password"),
       });
 
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          display_name: data.displayName,
-        }),
-      });
+      const result = await createUser(data.email, data.password, data.displayName);
 
-      const json = await res.json();
-
-      if (!res.ok) {
-        const msg =
-          res.status === 409 ? "E-mail já cadastrado." : (json.error ?? "Erro ao criar conta.");
+      if ("error" in result) {
+        const msg = result.status === 409 ? "E-mail já cadastrado." : (result.error ?? "Erro ao criar conta.");
         toast.error(msg);
         return;
       }
