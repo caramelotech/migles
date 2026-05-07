@@ -136,7 +136,7 @@ function LoginPageInner() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Carregando..." : "Entrar"}
+                  {submitting ? "Carregando…" : "Entrar"}
                 </Button>
               </form>
             </TabsContent>
@@ -167,7 +167,7 @@ function LoginPageInner() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Carregando..." : "Criar conta"}
+                  {submitting ? "Carregando…" : "Criar conta"}
                 </Button>
               </form>
             </TabsContent>
