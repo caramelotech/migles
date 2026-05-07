@@ -118,7 +118,11 @@ export default function NewCommunityPage() {
             control={control}
             name="type"
             render={({ field }) => (
-              <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-labelledby="type-label">
+              <div
+                className="grid grid-cols-2 gap-3"
+                role="radiogroup"
+                aria-labelledby="type-label"
+              >
                 <button
                   type="button"
                   role="radio"

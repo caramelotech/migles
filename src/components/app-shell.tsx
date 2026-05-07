@@ -131,7 +131,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={toggleTheme}
             className="flex-1 justify-start"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Moon className="h-4 w-4" aria-hidden="true" />
+            )}
             {theme === "dark" ? "Tema claro" : "Tema escuro"}
           </Button>
           <Button variant="ghost" size="icon" onClick={() => signOut()} aria-label="Sair">

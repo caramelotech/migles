@@ -77,13 +77,15 @@ export default function NewEventPage() {
       const event = await createEvent({
         title: data.title.trim(),
         description: data.description?.trim() || undefined,
-        location: data.location_type === "in_person" ? data.location?.trim() || undefined : undefined,
+        location:
+          data.location_type === "in_person" ? data.location?.trim() || undefined : undefined,
         location_type: data.location_type,
         cover_url,
         starts_at: new Date(data.starts_at).toISOString(),
         capacity: data.capacity ?? null,
         visibility: data.visibility,
-        community_id: data.visibility === "community" && data.community_id ? data.community_id : null,
+        community_id:
+          data.visibility === "community" && data.community_id ? data.community_id : null,
         created_by: user.id,
       });
 
@@ -172,7 +174,9 @@ export default function NewEventPage() {
             Data e hora <span className="text-destructive">*</span>
           </Label>
           <Input id="starts-at" type="datetime-local" {...register("starts_at")} />
-          {errors.starts_at && <p className="text-xs text-destructive">{errors.starts_at.message}</p>}
+          {errors.starts_at && (
+            <p className="text-xs text-destructive">{errors.starts_at.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">

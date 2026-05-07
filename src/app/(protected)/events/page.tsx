@@ -142,11 +142,7 @@ export default function EventsPage() {
           <SectionHeading>Próximos</SectionHeading>
           <div className="flex flex-col gap-2">
             {upcoming.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                href={`/events/${event.id}`}
-              />
+              <EventCard key={event.id} event={event} href={`/events/${event.id}`} />
             ))}
           </div>
         </section>
@@ -158,11 +154,7 @@ export default function EventsPage() {
           <SectionHeading>Passados</SectionHeading>
           <div className={cn("flex flex-col gap-2", upcoming.length > 0 && "opacity-60")}>
             {past.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                href={`/events/${event.id}`}
-              />
+              <EventCard key={event.id} event={event} href={`/events/${event.id}`} />
             ))}
           </div>
         </section>

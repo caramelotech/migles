@@ -232,7 +232,9 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
             Data e hora <span className="text-destructive">*</span>
           </Label>
           <Input id="starts-at" type="datetime-local" {...register("starts_at")} />
-          {errors.starts_at && <p className="text-xs text-destructive">{errors.starts_at.message}</p>}
+          {errors.starts_at && (
+            <p className="text-xs text-destructive">{errors.starts_at.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
