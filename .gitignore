@@ -65,3 +65,6 @@ lerna-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude
+.claude/settings.*
