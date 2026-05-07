@@ -2,6 +2,8 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -31,7 +33,6 @@ import {
   type RsvpStatus,
 } from "@/services/events";
 import { formatEventDate, formatRelativeDate } from "@/lib/format";
-import { ShareEventDialog } from "@/components/share-event-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -40,6 +41,18 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
+
+const ShareEventDialog = dynamic(
+  () => import("@/components/share-event-dialog").then((m) => ({ default: m.ShareEventDialog })),
+  { ssr: false },
+);
+
+const RSVP_STATUS_SECTIONS = [
+  { label: "Confirmados", status: "confirmed" },
+  { label: "Lista de espera", status: "waitlisted" },
+  { label: "Pendentes", status: "pending" },
+  { label: "Recusados", status: "declined" },
+] as const;
 
 export default function EventPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params);
@@ -159,22 +172,22 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
     <div className="space-y-6 w-full">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-2">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Voltar para eventos">
           <Link href="/events">
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>
         <div className="flex items-center gap-2">
           {isOrganizer && (
             <Button variant="outline" size="sm" asChild>
               <Link href={`/events/${eventId}/edit`}>
-                <Pencil className="h-4 w-4 mr-1" />
+                <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
                 Editar
               </Link>
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
-            <Share2 className="h-4 w-4 mr-1" />
+            <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
             Compartilhar
           </Button>
         </div>
@@ -182,8 +195,8 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
 
       {/* Cover */}
       {event.cover_url && (
-        <div className="w-full h-52 rounded-xl overflow-hidden">
-          <img src={event.cover_url} alt={event.title} className="h-full w-full object-cover" />
+        <div className="relative w-full h-52 rounded-xl overflow-hidden">
+          <Image src={event.cover_url} alt={event.title} fill className="object-cover" />
         </div>
       )}
 
@@ -336,9 +349,9 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                       <button
                         onClick={() => handleDeleteComment(c.id)}
                         className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                        title="Remover comentário"
+                        aria-label="Remover comentário"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
                     )}
                   </div>
@@ -357,7 +370,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Escreva um comentário..."
+              placeholder="Escreva um comentário…"
               rows={2}
               className="flex-1 resize-none"
               onKeyDown={(e) => {
@@ -367,8 +380,8 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                 }
               }}
             />
-            <Button type="submit" size="icon" disabled={postingComment || !comment.trim()}>
-              <Send className="h-4 w-4" />
+            <Button type="submit" size="icon" disabled={postingComment || !comment.trim()} aria-label="Publicar comentário">
+              <Send className="h-4 w-4" aria-hidden="true" />
             </Button>
           </form>
         )}
@@ -380,14 +393,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
           <Separator />
           <section className="space-y-3">
             <h2 className="font-semibold">Gerenciar participantes</h2>
-            {(
-              [
-                { label: "Confirmados", status: "confirmed" },
-                { label: "Lista de espera", status: "waitlisted" },
-                { label: "Pendentes", status: "pending" },
-                { label: "Recusados", status: "declined" },
-              ] as const
-            ).map(({ label, status }) => {
+            {RSVP_STATUS_SECTIONS.map(({ label, status }) => {
               type RsvpWithProfile = {
                 user_id: string;
                 status: RsvpStatus;
@@ -427,9 +433,9 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                           <button
                             onClick={() => handleRemoveRsvp(r.user_id)}
                             className="text-muted-foreground hover:text-destructive transition-colors"
-                            title="Remover RSVP"
+                            aria-label="Remover RSVP"
                           >
-                            <UserMinus className="h-3.5 w-3.5" />
+                            <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
                           </button>
                         )}
                       </div>
