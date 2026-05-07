@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Search, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -12,9 +13,11 @@ import { PageSpinner } from "@/components/page-spinner";
 import { SectionHeading } from "@/components/section-heading";
 import { CommunityCard } from "@/features/communities/CommunityCard";
 
-export default function CommunitiesPage() {
+function CommunitiesContent() {
   const { user } = useAuth();
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
 
   const { data: memberships = [], isLoading: loadingMine } = useQuery({
     queryKey: ["my-communities", user?.id],
@@ -32,6 +35,13 @@ export default function CommunitiesPage() {
 
   const myIds = new Set(memberships.map((m) => m.community.id));
   const discoveryResults = publicResults.filter((c) => !myIds.has(c.id));
+
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    const params = new URLSearchParams();
+    if (value.trim()) params.set("q", value.trim());
+    router.replace(`/communities${params.size ? `?${params}` : ""}`, { scroll: false });
+  }
 
   if (loadingMine) return <PageSpinner />;
 
@@ -53,7 +63,7 @@ export default function CommunitiesPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
         <Input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleQueryChange(e.target.value)}
           placeholder="Buscar comunidades…"
           className="pl-9"
         />
@@ -123,5 +133,13 @@ export default function CommunitiesPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function CommunitiesPage() {
+  return (
+    <Suspense>
+      <CommunitiesContent />
+    </Suspense>
   );
 }

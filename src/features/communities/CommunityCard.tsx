@@ -19,7 +19,7 @@ export function CommunityCard({
   return (
     <Link
       href={href}
-      className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
+      className="touch-manipulation w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
     >
       <div
         className={cn(

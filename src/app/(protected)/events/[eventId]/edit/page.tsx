@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useCallback, useRef, useState, useEffect } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -54,7 +54,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     watch,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -68,6 +68,15 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
       community_id: undefined,
     },
   });
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   const locationType = watch("location_type");
   const visibility = watch("visibility");

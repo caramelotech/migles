@@ -35,7 +35,7 @@ export function EventCard({ event, href }: { event: EventWithCounts; href: strin
   return (
     <Link
       href={href}
-      className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex gap-4"
+      className="touch-manipulation w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex gap-4"
     >
       {event.cover_url && (
         <div className="h-16 w-16 rounded-lg overflow-hidden shrink-0">
