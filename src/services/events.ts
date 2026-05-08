@@ -91,18 +91,24 @@ export async function removeEventOrganizer(eventId: string, userId: string) {
   if (error) throw error;
 }
 
-export async function listCommunityEvents(communityId: string) {
+export async function listCommunityEvents(
+  communityId: string,
+  userId?: string,
+): Promise<EventWithCounts[]> {
   const { data, error } = await supabase
     .from("events")
-    .select("*, rsvps(status)")
+    .select("*, communities(name), rsvps(status, user_id)")
     .eq("community_id", communityId)
     .order("starts_at", { ascending: true });
   if (error) throw error;
   return (data ?? []).map((e) => {
-    const event = e as unknown as EventWithRsvpStatus;
+    const event = e as unknown as EventWithFullJoins;
+    const myRsvp = userId ? event.rsvps.find((r) => r.user_id === userId) : undefined;
     return {
       ...event,
       confirmed_count: countConfirmed(event.rsvps),
+      my_rsvp: myRsvp ? myRsvp.status : null,
+      community_name: event.communities?.name ?? null,
     };
   });
 }

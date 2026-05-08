@@ -33,7 +33,7 @@ import {
   type CommunityMemberRole,
 } from "@/services/communities";
 import { listCommunityEvents } from "@/services/events";
-import { formatEventDate } from "@/lib/format";
+import { EventCard } from "@/features/events/EventCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -76,8 +76,8 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
   });
 
   const { data: events = [], isLoading: loadingEvents } = useQuery({
-    queryKey: ["community-events", communityId],
-    queryFn: () => listCommunityEvents(communityId),
+    queryKey: ["community-events", communityId, user?.id],
+    queryFn: () => listCommunityEvents(communityId, user?.id),
   });
 
   const { data: memberships = [] } = useQuery({
@@ -272,30 +272,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
           ) : (
             <div className="flex flex-col gap-2">
               {events.map((event) => (
-                <Link
-                  key={event.id}
-                  href={`/events/${event.id}`}
-                  className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
-                >
-                  {event.cover_url && (
-                    <div className="h-12 w-12 rounded-lg overflow-hidden shrink-0">
-                      <Image
-                        src={event.cover_url}
-                        alt={event.title}
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{event.title}</p>
-                    <span className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
-                      <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                      {formatEventDate(event.starts_at)}
-                    </span>
-                  </div>
-                </Link>
+                <EventCard key={event.id} event={event} href={`/events/${event.id}`} />
               ))}
             </div>
           )}
