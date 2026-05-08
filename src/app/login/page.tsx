@@ -2,23 +2,255 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { createUser } from "@/app/actions/auth";
-import { signInSchema, signUpSchema } from "@/schemas/authSchema";
+import {
+  signInSchema,
+  signUpSchema,
+  type SignInValues,
+  type SignUpValues,
+} from "@/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { PublicNavbar } from "@/components/public-navbar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Notification } from "@/components/notification";
+import { cn } from "@/lib/utils";
+
+function SignInForm() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, touchedFields },
+  } = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  });
+
+  function fieldClass(name: keyof SignInValues) {
+    const touched = touchedFields[name];
+    return cn(
+      touched && errors[name] && "border-red-500 focus-visible:ring-red-500",
+      touched && !errors[name] && "border-green-500 focus-visible:ring-green-500",
+    );
+  }
+
+  async function onSubmit(data: SignInValues) {
+    setSubmitting(true);
+    setServerError(null);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (error) {
+      setServerError(error.message);
+    } else {
+      toast.success("Logado com sucesso!");
+      router.push("/events");
+    }
+
+    setSubmitting(false);
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-4">
+      {serverError && (
+        <Notification
+          variant="error"
+          message={serverError}
+          onDismiss={() => setServerError(null)}
+        />
+      )}
+
+      <div className="space-y-1.5">
+        <Label htmlFor="email">E-mail</Label>
+        <Input
+          id="email"
+          type="email"
+          autoComplete="email"
+          {...register("email")}
+          className={fieldClass("email")}
+        />
+        {errors.email && (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="password">Senha</Label>
+        <Input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          {...register("password")}
+          className={fieldClass("password")}
+        />
+        {errors.password && (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>
+        )}
+      </div>
+
+      <Button type="submit" className="w-full" disabled={submitting}>
+        {submitting ? "Carregando…" : "Entrar"}
+      </Button>
+    </form>
+  );
+}
+
+function SignUpForm() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    trigger,
+    formState: { errors, touchedFields },
+  } = useForm<SignUpValues>({
+    resolver: zodResolver(signUpSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  });
+
+  const password = watch("password");
+
+  useEffect(() => {
+    if (touchedFields.confirmPassword) {
+      trigger("confirmPassword");
+    }
+  }, [password, touchedFields.confirmPassword, trigger]);
+
+  function fieldClass(name: keyof SignUpValues) {
+    const touched = touchedFields[name];
+    return cn(
+      touched && errors[name] && "border-red-500 focus-visible:ring-red-500",
+      touched && !errors[name] && "border-green-500 focus-visible:ring-green-500",
+    );
+  }
+
+  async function onSubmit(data: SignUpValues) {
+    setSubmitting(true);
+    setServerError(null);
+
+    const result = await createUser(data.email, data.password, data.displayName);
+
+    if ("error" in result) {
+      const msg =
+        result.status === 409 ? "E-mail já cadastrado." : (result.error ?? "Erro ao criar conta.");
+      setServerError(msg);
+      setSubmitting(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (error) {
+      setServerError(`Conta criada, mas erro ao entrar: ${error.message}`);
+      setSubmitting(false);
+      return;
+    }
+
+    toast.success("Conta criada com sucesso!");
+    router.push("/events");
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 mt-4">
+      {serverError && (
+        <Notification
+          variant="error"
+          message={serverError}
+          onDismiss={() => setServerError(null)}
+        />
+      )}
+
+      <div className="space-y-1.5">
+        <Label htmlFor="displayName">Nome</Label>
+        <Input
+          id="displayName"
+          autoComplete="name"
+          {...register("displayName")}
+          className={fieldClass("displayName")}
+        />
+        {errors.displayName && (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.displayName.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="email-signup">E-mail</Label>
+        <Input
+          id="email-signup"
+          type="email"
+          autoComplete="email"
+          {...register("email")}
+          className={fieldClass("email")}
+        />
+        {errors.email && (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="password-signup">Senha</Label>
+        <Input
+          id="password-signup"
+          type="password"
+          autoComplete="new-password"
+          {...register("password")}
+          className={fieldClass("password")}
+        />
+        {errors.password ? (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">Mínimo 6 caracteres</p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="confirmPassword">Confirmar senha</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          {...register("confirmPassword")}
+          className={fieldClass("confirmPassword")}
+        />
+        {errors.confirmPassword && (
+          <p className="text-xs text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
+        )}
+      </div>
+
+      <Button type="submit" className="w-full" disabled={submitting}>
+        {submitting ? "Carregando…" : "Criar conta"}
+      </Button>
+    </form>
+  );
+}
 
 function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
-  const [submitting, setSubmitting] = useState(false);
+
+  const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "signin";
 
   useEffect(() => {
     if (!loading && user) {
@@ -27,152 +259,30 @@ function LoginPageInner() {
     }
   }, [user, loading, router, searchParams]);
 
-  async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const data = signInSchema.parse({
-        email: formData.get("email"),
-        password: formData.get("password"),
-      });
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        toast.error(`Erro: ${error.message}`);
-      } else {
-        toast.success("Logado com sucesso!");
-        router.push("/events");
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      } else {
-        toast.error("Erro ao fazer login");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const formData = new FormData(e.currentTarget);
-      const data = signUpSchema.parse({
-        displayName: formData.get("displayName"),
-        email: formData.get("email"),
-        password: formData.get("password"),
-      });
-
-      const result = await createUser(data.email, data.password, data.displayName);
-
-      if ("error" in result) {
-        const msg =
-          result.status === 409
-            ? "E-mail já cadastrado."
-            : (result.error ?? "Erro ao criar conta.");
-        toast.error(msg);
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        toast.error(`Conta criada, mas erro ao entrar: ${error.message}`);
-        return;
-      }
-
-      toast.success("Conta criada com sucesso!");
-      router.push("/events");
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
-      } else {
-        toast.error("Erro ao criar conta");
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <PublicNavbar showLogin={false} />
       </div>
       <div className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
-            <Tabs defaultValue="signin">
-              <TabsList className="grid grid-cols-2 w-full">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Criar conta</TabsTrigger>
-              </TabsList>
-              <TabsContent value="signin">
-                <form method="post" onSubmit={handleSignIn} className="space-y-4 mt-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input id="email" name="email" type="email" autoComplete="email" required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="password">Senha</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? "Carregando…" : "Entrar"}
-                  </Button>
-                </form>
-              </TabsContent>
-              <TabsContent value="signup">
-                <form method="post" onSubmit={handleSignUp} className="space-y-4 mt-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="displayName">Nome</Label>
-                    <Input id="displayName" name="displayName" required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email-signup">E-mail</Label>
-                    <Input
-                      id="email-signup"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="password-signup">Senha</Label>
-                    <Input
-                      id="password-signup"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? "Carregando…" : "Criar conta"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </div>
+        <div className="w-full max-w-sm">
+          <h1 className="text-2xl font-semibold tracking-tight text-center">Bem-vindo</h1>
+          <p className="mt-1 text-sm text-muted-foreground text-center">
+            Entre ou crie sua conta para começar.
+          </p>
+          <div className="my-6 h-px bg-border" />
+          <Tabs defaultValue={defaultTab}>
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="signin">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Criar conta</TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
+              <SignInForm />
+            </TabsContent>
+            <TabsContent value="signup">
+              <SignUpForm />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
