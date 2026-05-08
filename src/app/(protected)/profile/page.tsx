@@ -41,7 +41,7 @@ export default function ProfilePage() {
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { display_name: "", bio: "" },
+    defaultValues: { display_name: "", bio: "", username: "" },
   });
 
   const displayName = watch("display_name");
@@ -58,6 +58,7 @@ export default function ProfilePage() {
       reset({
         display_name: profile.display_name ?? "",
         bio: profile.bio ?? "",
+        username: profile.username ?? "",
       });
       setAvatarPreview(profile.avatar_url ?? null);
     }
@@ -73,6 +74,7 @@ export default function ProfilePage() {
       return updateProfile(user.id, {
         display_name: data.display_name.trim() || undefined,
         bio: data.bio?.trim() || null,
+        username: data.username?.trim() || null,
         ...(avatar_url !== undefined ? { avatar_url } : {}),
       });
     },
@@ -168,6 +170,30 @@ export default function ProfilePage() {
           />
           {errors.display_name && (
             <p className="text-xs text-destructive">{errors.display_name.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="username">Nome de usuário</Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm select-none">
+              @
+            </span>
+            <Input
+              id="username"
+              placeholder="seu_usuario"
+              autoComplete="off"
+              spellCheck={false}
+              className="pl-7"
+              {...register("username")}
+            />
+          </div>
+          {errors.username ? (
+            <p className="text-xs text-destructive">{errors.username.message}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Letras minúsculas, números e _ · 3 a 30 caracteres
+            </p>
           )}
         </div>
 

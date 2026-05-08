@@ -46,6 +46,7 @@ export type Database = {
           id: string;
           invite_code: string;
           name: string;
+          slug: string | null;
           type: Database["public"]["Enums"]["community_type"];
           updated_at: string;
         };
@@ -61,6 +62,7 @@ export type Database = {
           id?: string;
           invite_code?: string;
           name: string;
+          slug?: string | null;
           type?: Database["public"]["Enums"]["community_type"];
           updated_at?: string;
         };
@@ -76,6 +78,7 @@ export type Database = {
           id?: string;
           invite_code?: string;
           name?: string;
+          slug?: string | null;
           type?: Database["public"]["Enums"]["community_type"];
           updated_at?: string;
         };
@@ -297,6 +300,7 @@ export type Database = {
           email: string | null;
           id: string;
           updated_at: string;
+          username: string | null;
         };
         Insert: {
           avatar_url?: string | null;
@@ -306,6 +310,7 @@ export type Database = {
           email?: string | null;
           id: string;
           updated_at?: string;
+          username?: string | null;
         };
         Update: {
           avatar_url?: string | null;
@@ -315,6 +320,7 @@ export type Database = {
           email?: string | null;
           id?: string;
           updated_at?: string;
+          username?: string | null;
         };
         Relationships: [];
       };

@@ -53,12 +53,23 @@ export async function searchPublicCommunities(query: string) {
   });
 }
 
+export async function getCommunityBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from("communities")
+    .select("*")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function createCommunity(input: {
   name: string;
   description?: string;
   type: CommunityType;
   cover_url?: string | null;
   created_by: string;
+  slug?: string | null;
 }) {
   const { data, error } = await supabase
     .from("communities")
@@ -68,6 +79,7 @@ export async function createCommunity(input: {
       type: input.type,
       cover_url: input.cover_url ?? null,
       created_by: input.created_by,
+      ...(input.slug ? { slug: input.slug } : {}),
     })
     .select()
     .single();
@@ -146,6 +158,7 @@ export async function updateCommunity(
     description?: string | null;
     type?: CommunityType;
     cover_url?: string | null;
+    slug?: string | null;
   },
 ) {
   const { data, error } = await supabase

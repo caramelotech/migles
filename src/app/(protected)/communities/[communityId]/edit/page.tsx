@@ -46,6 +46,7 @@ export default function EditCommunityPage({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [slug, setSlug] = useState("");
   const [type, setType] = useState<CommunityType>("public");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export default function EditCommunityPage({
       initialized.current = true;
       setName(community.name);
       setDescription(community.description ?? "");
+      setSlug(community.slug ?? "");
       setType(community.type as CommunityType);
       setCoverPreview(community.cover_url ?? null);
     }
@@ -88,6 +90,7 @@ export default function EditCommunityPage({
         name: name.trim(),
         description: description.trim() || null,
         type,
+        slug: slug.trim() || null,
         ...(cover_url !== undefined ? { cover_url } : {}),
       });
     },
@@ -162,6 +165,28 @@ export default function EditCommunityPage({
             placeholder="Nome da comunidade"
             required
           />
+        </div>
+
+        {/* Identificador */}
+        <div className="space-y-2">
+          <Label htmlFor="slug">Identificador</Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm select-none">
+              @
+            </span>
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="minha-comunidade"
+              autoComplete="off"
+              spellCheck={false}
+              className="pl-7"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Letras minúsculas, números e - · 3 a 50 caracteres
+          </p>
         </div>
 
         {/* Descrição */}

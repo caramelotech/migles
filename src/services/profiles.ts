@@ -13,9 +13,24 @@ export async function getProfile(userId: string) {
   return data;
 }
 
+export async function getProfileByUsername(username: string) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function updateProfile(
   userId: string,
-  input: { display_name?: string; bio?: string | null; avatar_url?: string | null },
+  input: {
+    display_name?: string;
+    bio?: string | null;
+    avatar_url?: string | null;
+    username?: string | null;
+  },
 ) {
   const current = await getProfile(userId);
   const { data, error } = await supabase
@@ -28,6 +43,7 @@ export async function updateProfile(
         bio: input.bio !== undefined ? input.bio : (current?.bio ?? null),
         avatar_url:
           input.avatar_url !== undefined ? input.avatar_url : (current?.avatar_url ?? null),
+        username: input.username !== undefined ? input.username : (current?.username ?? null),
       },
       { onConflict: "id" },
     )
@@ -42,8 +58,8 @@ export async function searchProfiles(query: string, excludeIds: string[] = []) {
   if (trimmed.length < 2) return [];
   let q = supabase
     .from("profiles")
-    .select("id, display_name, avatar_url")
-    .or(`display_name.ilike.%${trimmed}%,email.ilike.%${trimmed}%`)
+    .select("id, display_name, avatar_url, username")
+    .or(`display_name.ilike.%${trimmed}%,email.ilike.%${trimmed}%,username.ilike.%${trimmed}%`)
     .limit(8);
   if (excludeIds.length > 0) {
     q = q.not("id", "in", `(${excludeIds.join(",")})`);

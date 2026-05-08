@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,17 +18,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { CoverUpload } from "@/components/cover-upload";
 
+function nameToSlug(name: string) {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 50);
+}
+
 export default function NewCommunityPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const slugTouched = useRef(false);
 
   const {
     register,
     handleSubmit,
     watch,
     control,
+    setValue,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<CommunityFormValues>({
     resolver: zodResolver(communitySchema),
@@ -36,6 +49,7 @@ export default function NewCommunityPage() {
       name: "",
       description: "",
       type: "public",
+      slug: "",
     },
   });
 
@@ -48,7 +62,14 @@ export default function NewCommunityPage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
+  const name = watch("name");
   const type = watch("type");
+
+  useEffect(() => {
+    if (!slugTouched.current) {
+      setValue("slug", nameToSlug(name), { shouldValidate: false });
+    }
+  }, [name, setValue]);
 
   const handleCoverSelect = useCallback((file: File, url: string) => {
     setCoverFile(file);
@@ -69,6 +90,7 @@ export default function NewCommunityPage() {
         type: data.type,
         cover_url,
         created_by: user.id,
+        slug: data.slug?.trim() || undefined,
       });
 
       toast.success("Comunidade criada!");
@@ -105,6 +127,34 @@ export default function NewCommunityPage() {
             {...register("name")}
           />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="slug">Identificador</Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm select-none">
+              @
+            </span>
+            <Input
+              id="slug"
+              placeholder="minha-comunidade"
+              autoComplete="off"
+              spellCheck={false}
+              className="pl-7"
+              {...register("slug", {
+                onChange: () => {
+                  slugTouched.current = true;
+                },
+              })}
+            />
+          </div>
+          {errors.slug ? (
+            <p className="text-xs text-destructive">{errors.slug.message}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Letras minúsculas, números e - · gerado automaticamente pelo nome
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
