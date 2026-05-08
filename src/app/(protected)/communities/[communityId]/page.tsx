@@ -58,7 +58,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
 import { InviteCommunityDialog } from "@/components/invite-community-dialog";
-import Image from "next/image";
+import { DetailHero } from "@/components/detail-hero";
 
 type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
 
@@ -160,91 +160,66 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
   return (
     <div className="space-y-6 w-full">
-      <PageHeader back={{ href: "/communities", label: "Comunidades", showLabel: true }} />
-
-      {/* Cover / Header */}
-      <div className="rounded-xl overflow-hidden border border-border bg-card">
-        {community.cover_url ? (
-          <div className="relative w-full h-40">
-            <Image
-              src={community.cover_url}
-              alt={community.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 600px"
-              className="object-cover"
-            />
-          </div>
+      <PageHeader back={{ href: "/communities", label: "Comunidades", showLabel: true }}>
+        {isAdmin ? (
+          <Button size="sm" variant="outline" asChild>
+            <Link href={`/communities/${communityId}/edit`}>
+              <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
+              Editar
+            </Link>
+          </Button>
+        ) : isMember ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={() => setPendingAction({ type: "leave", userId: user!.id, name: "você" })}
+          >
+            <LogOut className="h-4 w-4 mr-1" aria-hidden="true" />
+            Sair
+          </Button>
         ) : (
-          <div className="w-full h-40 bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <span className="text-5xl font-bold text-primary/40">
-              {community.name.charAt(0).toUpperCase()}
-            </span>
-          </div>
+          <Button size="sm" onClick={() => joinMutation.mutate()} disabled={joinMutation.isPending}>
+            {joinMutation.isPending ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" aria-hidden="true" />
+            ) : (
+              <UserPlus className="h-4 w-4 mr-1" aria-hidden="true" />
+            )}
+            Entrar
+          </Button>
         )}
+      </PageHeader>
 
-        <div className="p-5 space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-bold leading-tight">{community.name}</h1>
-                <Badge variant="outline" className="shrink-0 gap-1">
-                  {community.type === "public" ? (
-                    <>
-                      <Globe className="h-3 w-3" />
-                      Pública
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="h-3 w-3" />
-                      Privada
-                    </>
-                  )}
-                </Badge>
-              </div>
-              {community.description && (
-                <p className="mt-1.5 text-sm text-muted-foreground">{community.description}</p>
-              )}
-            </div>
-
-            <div className="shrink-0 flex gap-2">
-              {isAdmin ? (
-                <Button size="sm" variant="outline" asChild>
-                  <Link href={`/communities/${communityId}/edit`}>
-                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                    Editar
-                  </Link>
-                </Button>
-              ) : isMember ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() =>
-                    setPendingAction({ type: "leave", userId: user!.id, name: "você" })
-                  }
-                >
-                  <LogOut className="h-3.5 w-3.5 mr-1.5" />
-                  Sair
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => joinMutation.mutate()}
-                  disabled={joinMutation.isPending}
-                >
-                  {joinMutation.isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                  ) : (
-                    <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-                  )}
-                  Entrar
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <DetailHero
+        coverUrl={community.cover_url}
+        coverAlt={community.name}
+        showCoverFallback
+        title={community.name}
+        badge={
+          <Badge variant="outline" className="shrink-0 gap-1">
+            {community.type === "public" ? (
+              <>
+                <Globe className="h-3 w-3" />
+                Pública
+              </>
+            ) : (
+              <>
+                <Lock className="h-3 w-3" />
+                Privada
+              </>
+            )}
+          </Badge>
+        }
+        description={community.description}
+        meta={
+          isMember && !loadingMembers ? (
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4 shrink-0" />
+              {members.length} {members.length === 1 ? "membro" : "membros"}
+            </span>
+          ) : undefined
+        }
+      />
 
       <Tabs defaultValue="eventos">
         <TabsList className="w-full">

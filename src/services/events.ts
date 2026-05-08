@@ -11,12 +11,14 @@ export type EventWithCounts = EventRow & {
   confirmed_count: number;
   my_rsvp: RsvpStatus | null;
   community_name: string | null;
+  creator_name: string | null;
 };
 
 // Local join shapes returned by Supabase relational queries
 type EventWithFullJoins = EventRow & {
   rsvps: Array<{ status: RsvpStatus; user_id: string }>;
   communities: { name: string } | null;
+  profiles: { display_name: string | null } | null;
 };
 
 type EventWithRsvpStatus = EventRow & {
@@ -30,7 +32,7 @@ function countConfirmed(rsvps: Array<{ status: RsvpStatus }>): number {
 export async function listMyEvents(userId: string): Promise<EventWithCounts[]> {
   const { data: events, error } = await supabase
     .from("events")
-    .select("*, communities(name), rsvps(status, user_id)")
+    .select("*, communities(name), profiles:created_by(display_name), rsvps(status, user_id)")
     .order("starts_at", { ascending: true });
 
   if (error) throw error;
@@ -42,6 +44,7 @@ export async function listMyEvents(userId: string): Promise<EventWithCounts[]> {
       confirmed_count: countConfirmed(event.rsvps),
       my_rsvp: event.rsvps.find((r) => r.user_id === userId)?.status ?? null,
       community_name: event.communities?.name ?? null,
+      creator_name: event.profiles?.display_name ?? null,
     };
   });
 }
@@ -57,7 +60,7 @@ export async function getEventByInviteCode(code: string): Promise<EventRow | nul
 export async function getEvent(eventId: string) {
   const { data, error } = await supabase
     .from("events")
-    .select("*, communities(id, name)")
+    .select("*, communities(id, name), profiles:created_by(display_name, avatar_url)")
     .eq("id", eventId)
     .maybeSingle();
   if (error) throw error;
@@ -95,7 +98,7 @@ export async function listCommunityEvents(
 ): Promise<EventWithCounts[]> {
   const { data, error } = await supabase
     .from("events")
-    .select("*, communities(name), rsvps(status, user_id)")
+    .select("*, communities(name), profiles:created_by(display_name), rsvps(status, user_id)")
     .eq("community_id", communityId)
     .order("starts_at", { ascending: true });
   if (error) throw error;
@@ -107,6 +110,7 @@ export async function listCommunityEvents(
       confirmed_count: countConfirmed(event.rsvps),
       my_rsvp: myRsvp ? myRsvp.status : null,
       community_name: event.communities?.name ?? null,
+      creator_name: event.profiles?.display_name ?? null,
     };
   });
 }
@@ -181,6 +185,7 @@ export async function updateEvent(
     starts_at?: string;
     capacity?: number | null;
     visibility?: EventVisibility;
+    community_id?: string | null;
     cover_url?: string | null;
   },
 ) {

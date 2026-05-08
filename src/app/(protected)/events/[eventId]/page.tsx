@@ -2,11 +2,11 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Building2,
   CalendarDays,
   ChevronDown,
   MapPin,
@@ -15,6 +15,7 @@ import {
   ShieldOff,
   Wifi,
   Users,
+  User,
   Pencil,
   Share2,
   Send,
@@ -54,6 +55,7 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
+import { DetailHero } from "@/components/detail-hero";
 
 const ShareEventDialog = dynamic(
   () => import("@/components/share-event-dialog").then((m) => ({ default: m.ShareEventDialog })),
@@ -199,6 +201,8 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const isOnline = event.location_type === "online";
   const communityData = (event as unknown as { communities: { id: string; name: string } | null })
     .communities;
+  const creatorProfile = (event as unknown as { profiles: { display_name: string | null } | null })
+    .profiles;
 
   const rsvpUserIds = (rsvps as Array<{ user_id: string }>).map((r) => r.user_id);
 
@@ -219,73 +223,68 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
         </Button>
       </PageHeader>
 
-      {/* Cover */}
-      {event.cover_url && (
-        <div className="relative w-full h-52 rounded-xl overflow-hidden">
-          <Image
-            src={event.cover_url}
-            alt={event.title}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 600px"
-            className="object-cover"
-          />
-        </div>
-      )}
+      <DetailHero
+        coverUrl={event.cover_url}
+        coverAlt={event.title}
+        title={event.title}
+        description={event.description}
+        meta={
+          <div className="flex flex-col gap-1.5">
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CalendarDays className="h-4 w-4 shrink-0" />
+              {formatEventDate(event.starts_at)}
+              <Badge variant="outline" className="ml-1 text-xs">
+                {formatRelativeDate(event.starts_at)}
+              </Badge>
+            </span>
 
-      {/* Title & meta */}
-      <div className="space-y-3">
-        <h1 className="text-2xl font-bold tracking-tight leading-snug">{event.title}</h1>
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              {isOnline ? (
+                <>
+                  <Wifi className="h-4 w-4 shrink-0" />
+                  {event.location ? (
+                    <a
+                      href={event.location}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline truncate"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {event.location}
+                    </a>
+                  ) : (
+                    "Online"
+                  )}
+                </>
+              ) : (
+                <>
+                  <MapPin className="h-4 w-4 shrink-0" />
+                  {event.location || "Local a definir"}
+                </>
+              )}
+            </span>
 
-        <div className="flex flex-col gap-1.5">
-          <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarDays className="h-4 w-4 shrink-0" />
-            {formatEventDate(event.starts_at)}
-            <Badge variant="outline" className="ml-1 text-xs">
-              {formatRelativeDate(event.starts_at)}
-            </Badge>
-          </span>
+            <span className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4 shrink-0" />
+              {event.capacity && event.capacity > 0
+                ? `${confirmedRsvps.length}/${event.capacity} confirmados`
+                : `${rsvps.length} ${rsvps.length === 1 ? "convidado" : "convidados"}`}
+            </span>
 
-          <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            {isOnline ? (
-              <>
-                <Wifi className="h-4 w-4 shrink-0" />
-                {event.location ? (
-                  <a
-                    href={event.location}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline truncate"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {event.location}
-                  </a>
-                ) : (
-                  "Online"
-                )}
-              </>
+            {communityData ? (
+              <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Building2 className="h-4 w-4 shrink-0" />
+                {communityData.name}
+              </span>
             ) : (
-              <>
-                <MapPin className="h-4 w-4 shrink-0" />
-                {event.location || "Local a definir"}
-              </>
+              <span className="flex items-center gap-2 text-sm text-muted-foreground">
+                <User className="h-4 w-4 shrink-0" />
+                {creatorProfile?.display_name ?? "Usuário"}
+              </span>
             )}
-          </span>
-
-          <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4 shrink-0" />
-            {event.capacity && event.capacity > 0
-              ? `${confirmedRsvps.length}/${event.capacity} confirmados`
-              : `${rsvps.length} ${rsvps.length === 1 ? "convidado" : "convidados"}`}
-          </span>
-        </div>
-
-        {event.description && (
-          <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-            {event.description}
-          </p>
-        )}
-      </div>
+          </div>
+        }
+      />
 
       <Separator />
 

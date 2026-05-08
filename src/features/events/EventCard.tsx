@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays, MapPin, Wifi, Users } from "lucide-react";
+import { Building2, CalendarDays, MapPin, User, Wifi, Users } from "lucide-react";
 import { type EventWithCounts, type RsvpStatus } from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +78,17 @@ export function EventCard({ event, href }: { event: EventWithCounts; href: strin
               ? `${event.confirmed_count}/${event.capacity} confirmados`
               : `${event.confirmed_count} confirmados`}
           </span>
+          {event.community_name ? (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">{event.community_name}</span>
+            </span>
+          ) : event.creator_name ? (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <User className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span className="truncate">{event.creator_name}</span>
+            </span>
+          ) : null}
         </div>
       </div>
     </Link>

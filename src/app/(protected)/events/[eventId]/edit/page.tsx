@@ -1,11 +1,11 @@
 "use client";
 
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Trash2 } from "lucide-react";
+import { Building2, Loader2, Lock, MapPin, Monitor, Trash2, User, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -46,7 +46,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   const queryClient = useQueryClient();
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-  const initialized = useRef(false);
+  const [initialized, setInitialized] = useState(false);
 
   const {
     register,
@@ -94,8 +94,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
   });
 
   useEffect(() => {
-    if (event && !initialized.current) {
-      initialized.current = true;
+    if (event && !initialized) {
       let starts_at_local = "";
       if (event.starts_at) {
         const d = new Date(event.starts_at);
@@ -113,8 +112,9 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         community_id: event.community_id ?? undefined,
       });
       setCoverPreview(event.cover_url ?? null);
+      setInitialized(true);
     }
-  }, [event, reset]);
+  }, [event, initialized, reset]);
 
   const handleCoverSelect = useCallback((file: File, url: string) => {
     setCoverFile(file);
@@ -142,6 +142,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         starts_at: new Date(data.starts_at).toISOString(),
         capacity: data.capacity ?? null,
         visibility: data.visibility,
+        community_id: data.visibility === "community" ? (data.community_id ?? null) : null,
         ...(cover_url !== undefined ? { cover_url } : {}),
       });
 
@@ -163,7 +164,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     }
   }
 
-  if (loadingEvent) return <PageSpinner />;
+  if (loadingEvent || !initialized) return <PageSpinner />;
 
   if (!event)
     return <NotFound message="Evento não encontrado." onBack={() => router.push("/events")} />;
@@ -174,6 +175,28 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         back={{ href: `/events/${eventId}`, label: "Voltar para o evento" }}
         title="Editar evento"
       />
+
+      {event.community_id && (event.communities as { name: string } | null) ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+          <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            Evento da comunidade{" "}
+            <strong className="text-foreground">
+              {(event.communities as { name: string }).name}
+            </strong>
+          </span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+          <User className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            Evento pessoal de{" "}
+            <strong className="text-foreground">
+              {(event.profiles as { display_name: string } | null)?.display_name ?? "você"}
+            </strong>
+          </span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5">
         <CoverUpload
@@ -207,20 +230,29 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location-type">Tipo de local</Label>
+          <Label>Tipo de local</Label>
           <Controller
             control={control}
             name="location_type"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="location-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="in_person">Presencial</SelectItem>
-                  <SelectItem value="online">Online</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => field.onChange("in_person")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "in_person" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Presencial</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange("online")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "online" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Monitor className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Online</span>
+                </button>
+              </div>
             )}
           />
         </div>
@@ -266,20 +298,29 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="visibility">Visibilidade</Label>
+          <Label>Visibilidade</Label>
           <Controller
             control={control}
             name="visibility"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="visibility">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Privado</SelectItem>
-                  <SelectItem value="community">Comunidade</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => field.onChange("private")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "private" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Lock className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Privado</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange("community")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "community" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Users className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Comunidade</span>
+                </button>
+              </div>
             )}
           />
         </div>

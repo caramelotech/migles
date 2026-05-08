@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock, MapPin, Monitor, Users } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
@@ -145,20 +145,29 @@ export default function NewEventPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location-type">Tipo de local</Label>
+          <Label>Tipo de local</Label>
           <Controller
             control={control}
             name="location_type"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="location-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="in_person">Presencial</SelectItem>
-                  <SelectItem value="online">Online</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => field.onChange("in_person")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "in_person" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <MapPin className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Presencial</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange("online")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "online" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Monitor className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Online</span>
+                </button>
+              </div>
             )}
           />
         </div>
@@ -204,20 +213,29 @@ export default function NewEventPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="visibility">Visibilidade</Label>
+          <Label>Visibilidade</Label>
           <Controller
             control={control}
             name="visibility"
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="visibility">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Privado</SelectItem>
-                  <SelectItem value="community">Comunidade</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => field.onChange("private")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "private" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Lock className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Privado</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange("community")}
+                  className={`flex-1 flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors ${field.value === "community" ? "border-primary bg-primary/10 text-primary" : "border-input bg-transparent text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Users className="h-4 w-4" aria-hidden="true" />
+                  <span className="font-medium">Comunidade</span>
+                </button>
+              </div>
             )}
           />
         </div>
