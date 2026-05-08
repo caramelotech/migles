@@ -176,7 +176,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
             />
           </div>
         ) : (
-          <div className="w-full h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+          <div className="w-full h-40 bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center">
             <span className="text-5xl font-bold text-primary/40">
               {community.name.charAt(0).toUpperCase()}
             </span>

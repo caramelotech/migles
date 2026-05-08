@@ -350,6 +350,10 @@ export type Database = {
         Args: { _event_id: string; _user_id: string };
         Returns: boolean;
       };
+      get_event_by_invite_code: {
+        Args: { p_code: string };
+        Returns: Database["public"]["Tables"]["events"]["Row"][];
+      };
       has_rsvp: {
         Args: { _event_id: string; _user_id: string };
         Returns: boolean;

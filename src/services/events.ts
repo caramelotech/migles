@@ -48,12 +48,10 @@ export async function listMyEvents(userId: string): Promise<EventWithCounts[]> {
 
 export async function getEventByInviteCode(code: string): Promise<EventRow | null> {
   const { data, error } = await supabase
-    .from("events")
-    .select("*")
-    .eq("invite_code", code)
+    .rpc("get_event_by_invite_code", { p_code: code })
     .maybeSingle();
   if (error) throw error;
-  return data;
+  return data as EventRow | null;
 }
 
 export async function getEvent(eventId: string) {

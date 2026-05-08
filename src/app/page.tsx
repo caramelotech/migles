@@ -29,7 +29,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-background/80">
+    <div className="min-h-screen flex flex-col bg-linear-to-b from-background to-background/80">
       <div className="flex flex-col flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <PublicNavbar />
 
