@@ -10,10 +10,8 @@ const STORAGE_KEY = "migles-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const initial: Theme =
       stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -21,7 +19,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
     const metaThemeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -33,14 +30,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.warn("Failed to save theme preference", error);
     }
-  }, [theme, mounted]);
+  }, [theme]);
 
   const setTheme = (t: Theme) => setThemeState(t);
   const toggleTheme = () => setThemeState((p) => (p === "dark" ? "light" : "dark"));
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

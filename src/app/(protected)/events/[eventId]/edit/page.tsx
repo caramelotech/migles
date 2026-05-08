@@ -3,7 +3,7 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -121,6 +121,11 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     setCoverPreview(url);
   }, []);
 
+  const onError = (errs: FieldErrors<EventFormValues>) => {
+    const first = Object.values(errs)[0] as { message?: string } | undefined;
+    toast.error(first?.message ?? "Corrija os erros no formulário antes de continuar.");
+  };
+
   const onSubmit = async (data: EventFormValues) => {
     if (!user) return;
     try {
@@ -170,7 +175,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
         title="Editar evento"
       />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5">
         <CoverUpload
           preview={coverPreview}
           onFileSelect={handleCoverSelect}
