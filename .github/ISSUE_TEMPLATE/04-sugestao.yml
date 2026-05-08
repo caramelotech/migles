@@ -1,0 +1,66 @@
+name: Sugestao
+description: Registre uma ideia inicial para discutirmos.
+title: "[sugestao]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este template para ideias ainda abertas. Se a ideia ja estiver madura e pronta para implementacao, prefira Feature ou Melhoria.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Ideia
+      description: Descreva a sugestao em poucas palavras.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: maturity
+    attributes:
+      label: Nivel de maturidade
+      options:
+        - Rascunho
+        - Quero discutir
+        - Ja tenho uma proposta concreta
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area relacionada
+      options:
+        - Produto
+        - Design
+        - Comunidades
+        - Eventos
+        - Convites / compartilhamento
+        - Mobile
+        - Web
+        - Backend / Supabase
+        - Documentacao
+        - Outra
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: O que motivou a sugestao? Existe exemplo real, feedback de usuario ou produto parecido?
+
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Possiveis ganhos e custos
+      description: O que a sugestao melhora e quais riscos ou complexidades ela pode trazer?
+
+  - type: textarea
+    id: relation-to-scope
+    attributes:
+      label: Relacao com o escopo do MVP
+      description: A sugestao parece estar dentro do MVP, fora do MVP ou depende de uma decisao em aberto?
+      placeholder: Ex. Pode tocar a questao Q4 sobre visibilidade publica de eventos de comunidade.

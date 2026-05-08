@@ -244,3 +244,12 @@ export async function inviteUserToEvent(eventId: string, userId: string) {
     );
   if (error) throw error;
 }
+
+export async function acceptInvite(code: string, status: RsvpStatus): Promise<string> {
+  const { data, error } = await supabase.rpc("accept_invite", {
+    p_code: code,
+    p_status: status,
+  });
+  if (error) throw error;
+  return data as string;
+}

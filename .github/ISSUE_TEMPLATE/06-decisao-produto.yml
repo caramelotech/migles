@@ -1,0 +1,76 @@
+name: Decisao de produto ou arquitetura
+description: Proponha uma decisao que deve atualizar o spec ou orientar implementacoes.
+title: "[decisao]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este template para decisoes que mudam o comportamento do produto, regras de negocio, arquitetura ou escopo.
+        Quando aprovada, a decisao deve atualizar `docs/spec-v1.md` ou gerar documentacao complementar.
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decisao a tomar
+      description: Escreva a decisao em uma frase clara.
+      placeholder: Ex. Eventos de comunidade podem ter preview publico fora da comunidade?
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: Contexto
+      description: Por que esta decisao e necessaria agora?
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: Opcoes consideradas
+      description: Liste caminhos possiveis e suas consequencias.
+      placeholder: |
+        1. Manter restrito a membros da comunidade
+        2. Permitir preview publico sem RSVP
+        3. Permitir RSVP via link publico com login
+    validations:
+      required: true
+
+  - type: textarea
+    id: recommendation
+    attributes:
+      label: Recomendacao
+      description: Qual opcao voce recomenda e por que?
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impacto esperado
+      options:
+        - Produto
+        - Arquitetura
+        - Banco de dados / RLS
+        - Mobile
+        - Web
+        - Escopo do MVP
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: spec-update
+    attributes:
+      label: Atualizacao necessaria no spec
+      description: Quais secoes de `docs/spec-v1.md` devem ser atualizadas?
+      placeholder: Ex. Secoes 7.4, 8.3 e 10 Q4.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollout
+    attributes:
+      label: Plano de implementacao
+      description: Se a decisao for aprovada, quais tarefas ou issues devem nascer dela?

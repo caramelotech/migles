@@ -6,6 +6,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5";
   };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       communities: {
@@ -346,13 +371,42 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_invite: {
+        Args: {
+          p_code: string;
+          p_status: Database["public"]["Enums"]["rsvp_status"];
+        };
+        Returns: string;
+      };
       can_view_event: {
         Args: { _event_id: string; _user_id: string };
         Returns: boolean;
       };
       get_event_by_invite_code: {
         Args: { p_code: string };
-        Returns: Database["public"]["Tables"]["events"]["Row"][];
+        Returns: {
+          capacity: number | null;
+          community_id: string | null;
+          cover_url: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          invite_code: string;
+          location: string | null;
+          location_type: Database["public"]["Enums"]["event_location_type"];
+          starts_at: string;
+          status: Database["public"]["Enums"]["event_status"];
+          title: string;
+          updated_at: string;
+          visibility: Database["public"]["Enums"]["event_visibility"];
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "events";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
       };
       has_rsvp: {
         Args: { _event_id: string; _user_id: string };
@@ -502,6 +556,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       community_member_role: ["admin", "member"],

@@ -8,12 +8,7 @@ import Image from "next/image";
 import { CalendarDays, LinkIcon, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
-import {
-  getEventByInviteCode,
-  inviteUserToEvent,
-  setRsvp,
-  type RsvpStatus,
-} from "@/services/events";
+import { getEventByInviteCode, acceptInvite, type RsvpStatus } from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 
@@ -34,21 +29,11 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
     enabled: !!user,
   });
 
-  // Ensure a pending RSVP exists when the invite page loads
-  const ensurePending = useMutation({
-    mutationFn: () => inviteUserToEvent(event!.id, user!.id),
-  });
-
-  const { mutate: ensurePendingMutate } = ensurePending;
-  useEffect(() => {
-    if (event?.id && user?.id) ensurePendingMutate();
-  }, [event?.id, user?.id, ensurePendingMutate]);
-
   const rsvpMutation = useMutation({
-    mutationFn: (status: RsvpStatus) => setRsvp(event!.id, user!.id, status),
-    onSuccess: (_, status) => {
+    mutationFn: (status: RsvpStatus) => acceptInvite(code, status),
+    onSuccess: (eventId, status) => {
       toast.success(status === "confirmed" ? "Presença confirmada!" : "Presença recusada.");
-      router.push(`/events/${event!.id}`);
+      router.push(`/events/${eventId}`);
     },
     onError: (err) =>
       toast.error(err instanceof Error ? err.message : "Erro ao responder convite."),

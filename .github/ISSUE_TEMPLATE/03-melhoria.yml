@@ -1,0 +1,71 @@
+name: Melhoria
+description: Sugira uma melhoria em algo que ja existe.
+title: "[melhoria]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este template para evoluir uma experiencia, fluxo, regra, tela ou implementacao existente.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Tipo de melhoria
+      options:
+        - UX / interface
+        - Performance
+        - Acessibilidade
+        - Arquitetura
+        - Banco de dados / RLS
+        - Validacao / formularios
+        - Documentacao
+        - Developer experience
+        - Outra
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Situacao atual
+      description: Como funciona hoje?
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Melhoria proposta
+      description: O que deve mudar?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivacao
+      description: Por que isso melhora o Migles?
+      placeholder: Ex. Reduz friccao para confirmar presenca, evita erro de organizador, melhora clareza da waitlist.
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected-flows
+    attributes:
+      label: Fluxos afetados
+      description: Liste telas, rotas, tabelas, servicos ou componentes possivelmente envolvidos.
+      placeholder: Ex. /events/[eventId], rsvps, event_comments, src/services/events.ts
+
+  - type: textarea
+    id: success-metric
+    attributes:
+      label: Como saberemos que melhorou?
+      description: Descreva um sinal observavel ou criterio de aceite.
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Riscos ou cuidados
+      description: Ha alguma regra de negocio, privacidade, RLS ou compatibilidade que precisa de atencao?

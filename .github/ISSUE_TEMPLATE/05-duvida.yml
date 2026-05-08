@@ -1,0 +1,67 @@
+name: Duvida
+description: Abra uma pergunta sobre produto, codigo, arquitetura ou uso.
+title: "[duvida]: "
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este template para perguntas que precisam de resposta do time antes de uma decisao ou implementacao.
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Assunto
+      options:
+        - Produto / spec
+        - Regra de negocio
+        - Arquitetura
+        - Banco de dados / RLS
+        - Supabase
+        - Next.js web
+        - Mobile
+        - Design / UX
+        - Processo
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Pergunta
+      description: Qual e a duvida?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: Explique de onde surgiu a duvida e o que ja foi verificado.
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Referencias
+      description: Links, arquivos, secoes do spec, PRs, issues ou trechos de codigo relacionados.
+      placeholder: Ex. docs/spec-v1.md secao 10 Q3
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgencia
+      options:
+        - Bloqueia implementacao
+        - Importante, mas nao bloqueia
+        - Baixa
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-output
+    attributes:
+      label: Tipo de resposta esperada
+      description: O que resolveria esta duvida?
+      placeholder: Ex. Decisao de produto, explicacao tecnica, ponteiro para documentacao ou proposta de ADR.

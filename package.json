@@ -10,7 +10,8 @@
     "format": "biome format --write .",
     "db:push": "supabase db push",
     "db:link": "supabase link --project-ref ccpavvxwkykdywfjbrky",
-    "db:seed": "node scripts/seed.mjs"
+    "db:seed": "node scripts/seed.mjs",
+    "db:types": "supabase gen types typescript --linked > src/integrations/supabase/types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

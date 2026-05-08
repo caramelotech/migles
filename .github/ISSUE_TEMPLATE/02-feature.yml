@@ -1,0 +1,93 @@
+name: Feature
+description: Proponha uma nova funcionalidade para o Migles.
+title: "[feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use este template quando a proposta adiciona uma capacidade nova ao produto.
+        Mudancas de produto devem ser refletidas em `docs/spec-v1.md` antes ou junto do codigo.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou oportunidade
+      description: Qual dor do usuario, organizador ou admin esta feature resolve?
+      placeholder: Ex. Organizadores precisam convidar varios membros de uma comunidade sem cadastrar um por um.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Descreva a funcionalidade desejada.
+      placeholder: Ex. Permitir selecionar varios membros de uma comunidade ao criar um evento e gerar RSVPs pending.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Dominio principal
+      options:
+        - Eventos
+        - RSVP
+        - Lista de espera
+        - Comunidades
+        - Convites e compartilhamento
+        - Comentarios
+        - Perfil
+        - Notificacoes
+        - Mobile
+        - Web
+        - Supabase / banco de dados
+        - Outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: Historia de usuario
+      description: Escreva do ponto de vista de quem usa.
+      placeholder: Como organizador, quero convidar membros da minha comunidade em lote para reduzir trabalho manual.
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Criterios de aceite
+      description: Quais comportamentos precisam existir para considerar a feature pronta?
+      placeholder: |
+        - Admin consegue selecionar membros de uma comunidade
+        - Cada membro selecionado recebe RSVP pending
+        - Usuarios banidos nao aparecem na selecao
+    validations:
+      required: true
+
+  - type: textarea
+    id: spec-impact
+    attributes:
+      label: Impacto no spec
+      description: Indique quais secoes de `docs/spec-v1.md` devem mudar ou confirme que nao ha impacto.
+      placeholder: Ex. Atualizar 7.2 Participantes e Convites.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Fora do escopo
+      description: O que esta proposta nao deve tentar resolver agora?
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: A proposta respeita que o Migles nao e uma plataforma de chat.
+          required: true
+        - label: A proposta considera impacto em web, mobile ou ambos.
+          required: true

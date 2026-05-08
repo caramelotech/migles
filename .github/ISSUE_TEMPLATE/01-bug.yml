@@ -1,0 +1,106 @@
+name: Bug
+description: Reporte um comportamento inesperado no Migles.
+title: "[bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar um bug. Antes de abrir a issue, confira se ja existe algo parecido.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area afetada
+      description: Qual parte do produto parece estar com problema?
+      options:
+        - Autenticacao
+        - Eventos
+        - RSVP
+        - Lista de espera
+        - Comunidades
+        - Convites e links publicos
+        - Comentarios
+        - Perfil
+        - Supabase / banco de dados
+        - Web
+        - Mobile
+        - Outra
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Comportamento atual
+      description: Descreva o que aconteceu.
+      placeholder: Ex. Ao confirmar presenca em um evento lotado, o usuario fica como confirmed em vez de waitlisted.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Comportamento esperado
+      description: O que deveria acontecer de acordo com a regra de produto?
+      placeholder: Ex. Quando o limite de vagas ja foi atingido, o RSVP deve ser waitlisted.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      description: Liste o menor caminho possivel para reproduzir o problema.
+      placeholder: |
+        1. Crie um evento com limite de 1 vaga
+        2. Confirme presenca com um usuario
+        3. Confirme presenca com outro usuario
+        4. Observe o estado do RSVP
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Plataforma
+      options:
+        - Web desktop
+        - Web mobile
+        - Mobile iOS
+        - Mobile Android
+        - Supabase / backend
+        - Nao sei
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Informe ambiente, navegador, device ou branch quando relevante.
+      placeholder: Ex. local, preview, producao, Chrome, iPhone 15, branch main
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencias
+      description: Prints, logs, videos, links de evento/comunidade ou mensagens de erro.
+
+  - type: textarea
+    id: product-rule
+    attributes:
+      label: Regra de negocio relacionada
+      description: Se souber, cite a regra do spec que parece ter sido violada.
+      placeholder: Ex. docs/spec-v1.md secao 8.2 Waitlist
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Busquei issues parecidas antes de abrir esta.
+          required: true
+        - label: Informei passos suficientes para alguem tentar reproduzir.
+          required: true
