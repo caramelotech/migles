@@ -35,26 +35,26 @@ export function EventCard({ event, href }: { event: EventWithCounts; href: strin
   return (
     <Link
       href={href}
-      className="touch-manipulation w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex gap-4"
+      className="touch-manipulation w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors overflow-hidden flex flex-col"
     >
       {event.cover_url && (
-        <div className="h-16 w-16 rounded-lg overflow-hidden shrink-0">
+        <div className="relative h-32 w-full overflow-hidden">
           <Image
             src={event.cover_url}
             alt={event.title}
-            width={64}
-            height={64}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 600px"
+            className="object-cover"
           />
         </div>
       )}
-      <div className="flex-1 min-w-0">
+      <div className="p-4 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <p className="font-semibold text-sm leading-snug truncate">{event.title}</p>
+          <p className="font-bold text-base leading-snug">{event.title}</p>
           {rsvpBadge(event.my_rsvp)}
         </div>
 
-        <div className="mt-1.5 flex flex-col gap-0.5">
+        <div className="flex flex-col gap-0.5">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             {formatEventDate(event.starts_at)}
@@ -63,7 +63,7 @@ export function EventCard({ event, href }: { event: EventWithCounts; href: strin
             {isOnline ? (
               <>
                 <Wifi className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                Online
+                <span className="truncate">{event.location || "Online"}</span>
               </>
             ) : (
               <>

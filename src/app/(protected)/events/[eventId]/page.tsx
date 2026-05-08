@@ -222,7 +222,14 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       {/* Cover */}
       {event.cover_url && (
         <div className="relative w-full h-52 rounded-xl overflow-hidden">
-          <Image src={event.cover_url} alt={event.title} fill className="object-cover" />
+          <Image
+            src={event.cover_url}
+            alt={event.title}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 600px"
+            className="object-cover"
+          />
         </div>
       )}
 
@@ -243,7 +250,19 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             {isOnline ? (
               <>
                 <Wifi className="h-4 w-4 shrink-0" />
-                Online
+                {event.location ? (
+                  <a
+                    href={event.location}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline truncate"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {event.location}
+                  </a>
+                ) : (
+                  "Online"
+                )}
               </>
             ) : (
               <>

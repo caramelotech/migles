@@ -43,7 +43,7 @@ export async function searchProfiles(query: string, excludeIds: string[] = []) {
   let q = supabase
     .from("profiles")
     .select("id, display_name, avatar_url")
-    .ilike("display_name", `%${trimmed}%`)
+    .or(`display_name.ilike.%${trimmed}%,email.ilike.%${trimmed}%`)
     .limit(8);
   if (excludeIds.length > 0) {
     q = q.not("id", "in", `(${excludeIds.join(",")})`);

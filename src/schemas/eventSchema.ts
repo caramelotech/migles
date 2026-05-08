@@ -5,7 +5,12 @@ export const eventSchema = z.object({
   description: z.string().optional(),
   location_type: z.enum(["in_person", "online"]),
   location: z.string().optional(),
-  starts_at: z.string().min(1, "A data e hora são obrigatórias"),
+  starts_at: z
+    .string()
+    .min(1, "A data e hora são obrigatórias")
+    .refine((val) => new Date(val) > new Date(), {
+      message: "A data não pode ser no passado",
+    }),
   capacity: z.number().int().min(1, "A capacidade deve ser pelo menos 1").optional(),
   visibility: z.enum(["private", "community"]),
   community_id: z.string().optional(),

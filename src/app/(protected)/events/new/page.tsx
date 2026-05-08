@@ -86,8 +86,7 @@ export default function NewEventPage() {
       const event = await createEvent({
         title: data.title.trim(),
         description: data.description?.trim() || undefined,
-        location:
-          data.location_type === "in_person" ? data.location?.trim() || undefined : undefined,
+        location: data.location?.trim() || undefined,
         location_type: data.location_type,
         cover_url,
         starts_at: new Date(data.starts_at).toISOString(),
@@ -159,17 +158,21 @@ export default function NewEventPage() {
           />
         </div>
 
-        {locationType === "in_person" && (
-          <div className="space-y-2">
-            <Label htmlFor="location">Endereço / local</Label>
-            <Input
-              id="location"
-              placeholder="Ex: Rua das Flores, 100 - São Paulo"
-              autoComplete="street-address"
-              {...register("location")}
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <Label htmlFor="location">
+            {locationType === "in_person" ? "Endereço / local" : "Link do evento"}
+          </Label>
+          <Input
+            id="location"
+            placeholder={
+              locationType === "in_person"
+                ? "Ex: Rua das Flores, 100 - São Paulo"
+                : "Ex: https://meet.google.com/abc-defg"
+            }
+            autoComplete={locationType === "in_person" ? "street-address" : "url"}
+            {...register("location")}
+          />
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="starts-at">

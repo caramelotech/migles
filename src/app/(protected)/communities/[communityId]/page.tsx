@@ -57,6 +57,7 @@ import {
 import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
+import { InviteCommunityDialog } from "@/components/invite-community-dialog";
 import Image from "next/image";
 
 type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
@@ -67,6 +68,7 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
   const router = useRouter();
   const queryClient = useQueryClient();
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const { data: community, isLoading: loadingCommunity } = useQuery({
     queryKey: ["community", communityId],
@@ -164,7 +166,14 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
       <div className="rounded-xl overflow-hidden border border-border bg-card">
         {community.cover_url ? (
           <div className="relative w-full h-40">
-            <Image src={community.cover_url} alt={community.name} fill className="object-cover" />
+            <Image
+              src={community.cover_url}
+              alt={community.name}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 600px"
+              className="object-cover"
+            />
           </div>
         ) : (
           <div className="w-full h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -306,90 +315,110 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
               <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary" />
             </div>
           ) : (
-            <div className="flex flex-col gap-1">
-              {members.map((m) => {
-                const name = m.profiles?.display_name ?? "Usuário";
-                const isCurrentUser = m.user_id === user?.id;
-                const isThisAdmin = m.role === "admin";
-                return (
-                  <div
-                    key={m.id}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/30 transition-colors"
-                  >
-                    <UserAvatar
-                      name={name}
-                      avatarUrl={m.profiles?.avatar_url}
-                      className="shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium truncate block">
-                        {name}
-                        {isCurrentUser && (
-                          <span className="ml-1.5 text-xs text-muted-foreground">(você)</span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={isThisAdmin ? "default" : "outline"} className="text-xs">
-                        {isThisAdmin ? "Admin" : "Membro"}
-                      </Badge>
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-muted-foreground">
+                  {members.length} {members.length === 1 ? "membro" : "membros"}
+                </span>
+                <Button size="sm" variant="outline" onClick={() => setInviteOpen(true)}>
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  Convidar
+                </Button>
+              </div>
+              <div className="flex flex-col gap-1">
+                {members.map((m) => {
+                  const name = m.profiles?.display_name ?? "Usuário";
+                  const isCurrentUser = m.user_id === user?.id;
+                  const isThisAdmin = m.role === "admin";
+                  return (
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/30 transition-colors"
+                    >
+                      <UserAvatar
+                        name={name}
+                        avatarUrl={m.profiles?.avatar_url}
+                        className="shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium truncate block">
+                          {name}
+                          {isCurrentUser && (
+                            <span className="ml-1.5 text-xs text-muted-foreground">(você)</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant={isThisAdmin ? "default" : "outline"} className="text-xs">
+                          {isThisAdmin ? "Admin" : "Membro"}
+                        </Badge>
 
-                      {isAdmin && !isCurrentUser && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {isThisAdmin ? (
+                        {isAdmin && !isCurrentUser && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {isThisAdmin ? (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    roleMutation.mutate({ userId: m.user_id, role: "member" })
+                                  }
+                                >
+                                  <ShieldOff className="h-4 w-4 mr-2" />
+                                  Remover de admin
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    roleMutation.mutate({ userId: m.user_id, role: "admin" })
+                                  }
+                                >
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Tornar admin
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() =>
-                                  roleMutation.mutate({ userId: m.user_id, role: "member" })
+                                  setPendingAction({ type: "remove", userId: m.user_id, name })
                                 }
                               >
-                                <ShieldOff className="h-4 w-4 mr-2" />
-                                Remover de admin
+                                <UserMinus className="h-4 w-4 mr-2" />
+                                Remover da comunidade
                               </DropdownMenuItem>
-                            ) : (
                               <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
                                 onClick={() =>
-                                  roleMutation.mutate({ userId: m.user_id, role: "admin" })
+                                  setPendingAction({ type: "ban", userId: m.user_id, name })
                                 }
                               >
-                                <Shield className="h-4 w-4 mr-2" />
-                                Tornar admin
+                                <Ban className="h-4 w-4 mr-2" />
+                                Banir
                               </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() =>
-                                setPendingAction({ type: "remove", userId: m.user_id, name })
-                              }
-                            >
-                              <UserMinus className="h-4 w-4 mr-2" />
-                              Remover da comunidade
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() =>
-                                setPendingAction({ type: "ban", userId: m.user_id, name })
-                              }
-                            >
-                              <Ban className="h-4 w-4 mr-2" />
-                              Banir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </TabsContent>
       </Tabs>
+
+      <InviteCommunityDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        communityId={communityId}
+        communityName={community.name}
+        isAdmin={isAdmin}
+        memberIds={members.map((m) => m.user_id)}
+      />
 
       {/* Confirmation dialog */}
       <AlertDialog open={!!pendingAction} onOpenChange={(o) => !o && setPendingAction(null)}>
