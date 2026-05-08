@@ -4,6 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 export type CommunityRow = Database["public"]["Tables"]["communities"]["Row"];
 export type CommunityType = Database["public"]["Enums"]["community_type"];
 export type CommunityMemberRole = Database["public"]["Enums"]["community_member_role"];
+export type CommunityWithCounts = CommunityRow & { member_count: number };
 
 type MemberWithProfile = {
   id: string;
@@ -13,27 +14,43 @@ type MemberWithProfile = {
   profiles: { id: string; display_name: string | null; avatar_url: string | null } | null;
 };
 
-type MemberWithCommunity = { role: string; communities: CommunityRow };
+type MemberWithCommunity = {
+  role: string;
+  communities: CommunityRow & { community_members: Array<{ count: number }> };
+};
 
 export async function listMyCommunities(userId: string) {
   const { data, error } = await supabase
     .from("community_members")
-    .select("role, status, communities(*)")
+    .select("role, status, communities(*, community_members(count))")
     .eq("user_id", userId)
     .eq("status", "active");
   if (error) throw error;
   return (data ?? []).map((m) => {
     const member = m as unknown as MemberWithCommunity;
-    return { role: member.role, community: member.communities };
+    const { community_members: counts, ...rest } = member.communities;
+    return {
+      role: member.role,
+      community: { ...rest, member_count: counts?.[0]?.count ?? 0 } as CommunityWithCounts,
+    };
   });
 }
 
 export async function searchPublicCommunities(query: string) {
-  let q = supabase.from("communities").select("*").eq("type", "public").limit(30);
+  let q = supabase
+    .from("communities")
+    .select("*, community_members(count)")
+    .eq("type", "public")
+    .limit(30);
   if (query.trim()) q = q.ilike("name", `%${query.trim()}%`);
   const { data, error } = await q;
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((row) => {
+    const { community_members: counts, ...rest } = row as CommunityRow & {
+      community_members: Array<{ count: number }>;
+    };
+    return { ...rest, member_count: counts?.[0]?.count ?? 0 } as CommunityWithCounts;
+  });
 }
 
 export async function createCommunity(input: {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Globe, Lock } from "lucide-react";
-import { type CommunityRow } from "@/services/communities";
+import { Globe, Lock, Users } from "lucide-react";
+import { type CommunityRow, type CommunityWithCounts } from "@/services/communities";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { avatarColor } from "@/lib/formatters";
@@ -11,11 +11,12 @@ export function CommunityCard({
   role,
   href,
 }: {
-  community: CommunityRow;
+  community: CommunityRow | CommunityWithCounts;
   role?: "admin" | "member";
   href: string;
 }) {
   const initial = community.name.charAt(0).toUpperCase();
+  const memberCount = "member_count" in community ? community.member_count : null;
 
   return (
     <Link
@@ -61,17 +62,25 @@ export function CommunityCard({
             {community.description}
           </p>
         )}
-        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          {community.type === "public" ? (
-            <>
-              <Globe className="h-3 w-3" aria-hidden="true" />
-              Pública
-            </>
-          ) : (
-            <>
-              <Lock className="h-3 w-3" aria-hidden="true" />
-              Privada
-            </>
+        <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            {community.type === "public" ? (
+              <>
+                <Globe className="h-3 w-3" aria-hidden="true" />
+                Pública
+              </>
+            ) : (
+              <>
+                <Lock className="h-3 w-3" aria-hidden="true" />
+                Privada
+              </>
+            )}
+          </span>
+          {memberCount !== null && (
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" aria-hidden="true" />
+              {memberCount} {memberCount === 1 ? "membro" : "membros"}
+            </span>
           )}
         </div>
       </div>
