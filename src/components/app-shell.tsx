@@ -2,18 +2,23 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Home, CalendarDays, Plus, User, Sun, Moon, LogOut } from "lucide-react";
+import { Home, CalendarDays, Plus, User, Sun, Moon, LogOut, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { listMyCommunities } from "@/services/communities";
 import type { ReactNode } from "react";
 
 const navItems = [
   { href: "/feed", label: "Início", icon: Home },
   { href: "/events", label: "Eventos", icon: CalendarDays },
-  { href: "/events/new", label: "Criar", icon: Plus },
   { href: "/profile", label: "Perfil", icon: User },
 ] as const;
 
@@ -31,6 +36,70 @@ function dotColor(id: string) {
   return palette[h % palette.length];
 }
 
+const navItemClass = (active: boolean) =>
+  `flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full ${
+    active
+      ? "bg-accent text-primary"
+      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+  }`;
+
+function CreateMenu({ side = "right" }: { side?: "right" | "top" }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" className={navItemClass(false)}>
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          Criar
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side={side} align="start" className="w-44">
+        <DropdownMenuItem asChild>
+          <Link href="/events/new" className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
+            Evento
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/communities/new" className="flex items-center gap-2">
+            <Users className="h-4 w-4" aria-hidden="true" />
+            Comunidade
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function CreateMenuMobile() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs text-muted-foreground"
+        >
+          <Plus className="h-5 w-5" aria-hidden="true" />
+          Criar
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="top" align="center" className="w-44 mb-1">
+        <DropdownMenuItem asChild>
+          <Link href="/events/new" className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
+            Evento
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/communities/new" className="flex items-center gap-2">
+            <Users className="h-4 w-4" aria-hidden="true" />
+            Comunidade
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
@@ -43,9 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   });
 
   const isActive = (href: string) => {
-    if (href === "/feed") {
-      return pathname === "/feed";
-    }
+    if (href === "/feed") return pathname === "/feed";
     if (href === "/events") {
       return (
         pathname === "/events" || (pathname.startsWith("/events/") && pathname !== "/events/new")
@@ -73,20 +140,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             const Icon = item.icon;
             const active = isActive(item.href);
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors w-full ${
-                  active
-                    ? "bg-accent text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                }`}
-              >
+              <Link key={item.href} href={item.href} className={navItemClass(active)}>
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
               </Link>
             );
           })}
+          <CreateMenu side="right" />
         </nav>
 
         <div className="mt-4 px-4">
@@ -172,6 +232,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          <CreateMenuMobile />
           <button
             type="button"
             onClick={toggleTheme}
