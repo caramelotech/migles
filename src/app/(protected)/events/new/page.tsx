@@ -110,7 +110,7 @@ export default function NewEventPage() {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       <PageHeader back={{ href: "/events", label: "Voltar para eventos" }} title="Novo evento" />
 
       <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5">

@@ -11,6 +11,7 @@ import { PageSpinner } from "@/components/page-spinner";
 import { EventCard } from "@/features/events/EventCard";
 import { CommunityCard } from "@/features/communities/CommunityCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeader } from "@/components/page-header";
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -50,7 +51,8 @@ export default function FeedPage() {
   const placeholder = tab === "events" ? "Buscar eventos…" : "Buscar comunidades…";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <PageHeader title="Feed" />
       <Tabs value={tab} onValueChange={handleTabChange}>
         <div className="flex items-center gap-3">
           <TabsList>

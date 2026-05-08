@@ -136,7 +136,7 @@ export default function EditCommunityPage({
   }
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       <PageHeader
         back={{ href: `/communities/${communityId}`, label: "Voltar para a comunidade" }}
         title="Editar comunidade"

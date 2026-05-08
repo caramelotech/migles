@@ -98,7 +98,7 @@ export default function ProfilePage() {
   if (isLoading) return <PageSpinner />;
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       <PageHeader title="Perfil">
         <Button
           variant="ghost"

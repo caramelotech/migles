@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,8 +15,6 @@ import {
   Wifi,
   Users,
   User,
-  Pencil,
-  Share2,
   Send,
   Clock,
   Trash2,
@@ -56,6 +53,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
 import { DetailHero } from "@/components/detail-hero";
+import { EditButton } from "@/components/edit-button";
+import { ShareButton } from "@/components/share-button";
 
 const ShareEventDialog = dynamic(
   () => import("@/components/share-event-dialog").then((m) => ({ default: m.ShareEventDialog })),
@@ -207,20 +206,10 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const rsvpUserIds = (rsvps as Array<{ user_id: string }>).map((r) => r.user_id);
 
   return (
-    <div className="space-y-6 w-full">
-      <PageHeader back={{ href: "/events", label: "Voltar para eventos" }}>
-        {isOrganizer && (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/events/${eventId}/edit`}>
-              <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
-              Editar
-            </Link>
-          </Button>
-        )}
-        <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
-          <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
-          Compartilhar
-        </Button>
+    <div className="space-y-6">
+      <PageHeader back={{ href: "/events", label: "Voltar para eventos" }} title="Evento">
+        {isOrganizer && <EditButton href={`/events/${eventId}/edit`} />}
+        <ShareButton onClick={() => setShareOpen(true)} />
       </PageHeader>
 
       <DetailHero

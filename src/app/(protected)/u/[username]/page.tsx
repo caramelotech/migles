@@ -37,7 +37,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ username
   const initial = (profile.display_name ?? profile.username ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="space-y-6 max-w-lg mx-auto">
+    <div className="space-y-6">
       <Button
         variant="ghost"
         size="sm"

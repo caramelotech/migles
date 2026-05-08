@@ -101,7 +101,7 @@ export default function NewCommunityPage() {
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       <PageHeader
         back={{ href: "/communities", label: "Voltar para comunidades" }}
         title="Nova comunidade"

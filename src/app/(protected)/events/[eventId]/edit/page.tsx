@@ -170,7 +170,7 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
     return <NotFound message="Evento não encontrado." onBack={() => router.push("/events")} />;
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-6">
       <PageHeader
         back={{ href: `/events/${eventId}`, label: "Voltar para o evento" }}
         title="Editar evento"

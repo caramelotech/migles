@@ -1,14 +1,12 @@
 "use client";
 
 import { use, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
   Globe,
   Lock,
-  Pencil,
   UserPlus,
   Loader2,
   MoreHorizontal,
@@ -20,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { EditButton } from "@/components/edit-button";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -159,15 +158,10 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
     );
 
   return (
-    <div className="space-y-6 w-full">
-      <PageHeader back={{ href: "/communities", label: "Comunidades", showLabel: true }}>
+    <div className="space-y-6">
+      <PageHeader back={{ href: "/communities", label: "Comunidades" }} title="Comunidade">
         {isAdmin ? (
-          <Button size="sm" variant="outline" asChild>
-            <Link href={`/communities/${communityId}/edit`}>
-              <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
-              Editar
-            </Link>
-          </Button>
+          <EditButton href={`/communities/${communityId}/edit`} />
         ) : isMember ? (
           <Button
             size="sm"
