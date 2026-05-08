@@ -313,19 +313,13 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       {(confirmedRsvps.length > 0 || (isOrganizer && rsvps.length > 0)) && (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">
-              Convidados ({rsvps.length})
-            </h2>
+            <h2 className="font-semibold">Convidados ({rsvps.length})</h2>
             <button
               onClick={() => setParticipantsExpanded((v) => !v)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
               aria-expanded={participantsExpanded}
             >
-              {participantsExpanded
-                ? "Recolher"
-                : isOrganizer
-                  ? "Gerenciar"
-                  : "Ver todos"}
+              {participantsExpanded ? "Recolher" : isOrganizer ? "Gerenciar" : "Ver todos"}
               <ChevronDown
                 className={cn("h-4 w-4 transition-transform", participantsExpanded && "rotate-180")}
                 aria-hidden="true"
@@ -350,9 +344,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                     <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
                       {name}
                     </span>
-                    {isMe && (
-                      <span className="text-[10px] text-muted-foreground">(você)</span>
-                    )}
+                    {isMe && <span className="text-[10px] text-muted-foreground">(você)</span>}
                   </div>
                 );
               })}
