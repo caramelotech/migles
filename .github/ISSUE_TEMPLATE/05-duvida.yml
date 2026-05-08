@@ -1,13 +1,13 @@
-name: Duvida
-description: Abra uma pergunta sobre produto, codigo, arquitetura ou uso.
-title: "[duvida]: "
+name: "❓ Dúvida"
+description: "Pergunte sobre produto, código, arquitetura, regra ou processo."
+title: "[❓ duvida]: "
 labels:
   - question
 body:
   - type: markdown
     attributes:
       value: |
-        Use este template para perguntas que precisam de resposta do time antes de uma decisao ou implementacao.
+        Pergunta boa economiza retrabalho. Se travou, ficou ambíguo ou parece decisão escondida, abre aqui.
 
   - type: dropdown
     id: topic
@@ -24,8 +24,6 @@ body:
         - Design / UX
         - Processo
         - Outro
-    validations:
-      required: true
 
   - type: textarea
     id: question
@@ -56,8 +54,6 @@ body:
         - Bloqueia implementacao
         - Importante, mas nao bloqueia
         - Baixa
-    validations:
-      required: true
 
   - type: textarea
     id: expected-output

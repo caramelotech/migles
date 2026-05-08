@@ -1,13 +1,14 @@
-name: Sugestao
-description: Registre uma ideia inicial para discutirmos.
-title: "[sugestao]: "
+name: "💡 Sugestão"
+description: "Uma ideia solta, provocação ou caminho para explorar."
+title: "[💡 sugestao]: "
 labels:
   - enhancement
 body:
   - type: markdown
     attributes:
       value: |
-        Use este template para ideias ainda abertas. Se a ideia ja estiver madura e pronta para implementacao, prefira Feature ou Melhoria.
+        Ideias pequenas tambem movem produto. Manda o rascunho, a pergunta, a provocacao.
+        Se ja estiver bem definida, talvez ela vire uma Feature ou Melhoria depois.
 
   - type: textarea
     id: idea
@@ -25,8 +26,6 @@ body:
         - Rascunho
         - Quero discutir
         - Ja tenho uma proposta concreta
-    validations:
-      required: true
 
   - type: dropdown
     id: area
@@ -43,8 +42,6 @@ body:
         - Backend / Supabase
         - Documentacao
         - Outra
-    validations:
-      required: true
 
   - type: textarea
     id: context

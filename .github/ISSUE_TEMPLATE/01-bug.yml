@@ -1,19 +1,20 @@
-name: Bug
-description: Reporte um comportamento inesperado no Migles.
-title: "[bug]: "
+name: "🐛 Bug"
+description: "Algo quebrou, saiu estranho ou não bate com o esperado? Conta pra gente."
+title: "[🐛 bug]: "
 labels:
   - bug
 body:
   - type: markdown
     attributes:
       value: |
-        Obrigado por reportar um bug. Antes de abrir a issue, confira se ja existe algo parecido.
+        Valeu por ajudar a deixar o Migles mais redondinho. 🧡
+        Preencha só o que você souber; o mais importante é explicar o que aconteceu.
 
   - type: dropdown
     id: area
     attributes:
       label: Area afetada
-      description: Qual parte do produto parece estar com problema?
+      description: Se souber, marque onde o problema apareceu.
       options:
         - Autenticacao
         - Eventos
@@ -27,8 +28,6 @@ body:
         - Web
         - Mobile
         - Outra
-    validations:
-      required: true
 
   - type: textarea
     id: current-behavior
@@ -45,8 +44,6 @@ body:
       label: Comportamento esperado
       description: O que deveria acontecer de acordo com a regra de produto?
       placeholder: Ex. Quando o limite de vagas ja foi atingido, o RSVP deve ser waitlisted.
-    validations:
-      required: true
 
   - type: textarea
     id: steps
@@ -58,8 +55,6 @@ body:
         2. Confirme presenca com um usuario
         3. Confirme presenca com outro usuario
         4. Observe o estado do RSVP
-    validations:
-      required: true
 
   - type: dropdown
     id: platform
@@ -72,8 +67,6 @@ body:
         - Mobile Android
         - Supabase / backend
         - Nao sei
-    validations:
-      required: true
 
   - type: input
     id: environment
@@ -101,6 +94,4 @@ body:
       label: Checklist
       options:
         - label: Busquei issues parecidas antes de abrir esta.
-          required: true
         - label: Informei passos suficientes para alguem tentar reproduzir.
-          required: true

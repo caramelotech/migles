@@ -1,14 +1,14 @@
-name: Decisao de produto ou arquitetura
-description: Proponha uma decisao que deve atualizar o spec ou orientar implementacoes.
-title: "[decisao]: "
+name: "🧭 Decisão de produto ou arquitetura"
+description: "Quando precisamos alinhar uma escolha antes de sair construindo."
+title: "[🧭 decisao]: "
 labels:
   - enhancement
 body:
   - type: markdown
     attributes:
       value: |
-        Use este template para decisoes que mudam o comportamento do produto, regras de negocio, arquitetura ou escopo.
-        Quando aprovada, a decisao deve atualizar `docs/spec-v1.md` ou gerar documentacao complementar.
+        Use este template para escolhas que mudam comportamento, regra de negocio, arquitetura ou escopo.
+        Pode começar pequeno: o objetivo é dar um lugar claro para a conversa virar decisão.
 
   - type: textarea
     id: decision
@@ -24,8 +24,6 @@ body:
     attributes:
       label: Contexto
       description: Por que esta decisao e necessaria agora?
-    validations:
-      required: true
 
   - type: textarea
     id: options
@@ -36,8 +34,6 @@ body:
         1. Manter restrito a membros da comunidade
         2. Permitir preview publico sem RSVP
         3. Permitir RSVP via link publico com login
-    validations:
-      required: true
 
   - type: textarea
     id: recommendation
@@ -57,8 +53,6 @@ body:
         - Web
         - Escopo do MVP
         - Outro
-    validations:
-      required: true
 
   - type: textarea
     id: spec-update
@@ -66,8 +60,6 @@ body:
       label: Atualizacao necessaria no spec
       description: Quais secoes de `docs/spec-v1.md` devem ser atualizadas?
       placeholder: Ex. Secoes 7.4, 8.3 e 10 Q4.
-    validations:
-      required: true
 
   - type: textarea
     id: rollout

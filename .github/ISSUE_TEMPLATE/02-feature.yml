@@ -1,14 +1,14 @@
-name: Feature
-description: Proponha uma nova funcionalidade para o Migles.
-title: "[feature]: "
+name: "✨ Feature"
+description: "Uma ideia nova para o Migles ganhar superpoderes."
+title: "[✨ feature]: "
 labels:
   - enhancement
 body:
   - type: markdown
     attributes:
       value: |
-        Use este template quando a proposta adiciona uma capacidade nova ao produto.
-        Mudancas de produto devem ser refletidas em `docs/spec-v1.md` antes ou junto do codigo.
+        Use este template quando a proposta adiciona uma capacidade nova ao Migles.
+        Pode vir rascunho mesmo: a gente lapida junto. Se virar produto, atualizamos `docs/spec-v1.md`.
 
   - type: textarea
     id: problem
@@ -16,8 +16,6 @@ body:
       label: Problema ou oportunidade
       description: Qual dor do usuario, organizador ou admin esta feature resolve?
       placeholder: Ex. Organizadores precisam convidar varios membros de uma comunidade sem cadastrar um por um.
-    validations:
-      required: true
 
   - type: textarea
     id: proposal
@@ -45,8 +43,6 @@ body:
         - Web
         - Supabase / banco de dados
         - Outro
-    validations:
-      required: true
 
   - type: textarea
     id: user-story
@@ -64,8 +60,6 @@ body:
         - Admin consegue selecionar membros de uma comunidade
         - Cada membro selecionado recebe RSVP pending
         - Usuarios banidos nao aparecem na selecao
-    validations:
-      required: true
 
   - type: textarea
     id: spec-impact
@@ -73,8 +67,6 @@ body:
       label: Impacto no spec
       description: Indique quais secoes de `docs/spec-v1.md` devem mudar ou confirme que nao ha impacto.
       placeholder: Ex. Atualizar 7.2 Participantes e Convites.
-    validations:
-      required: true
 
   - type: textarea
     id: out-of-scope
@@ -88,6 +80,4 @@ body:
       label: Checklist
       options:
         - label: A proposta respeita que o Migles nao e uma plataforma de chat.
-          required: true
         - label: A proposta considera impacto em web, mobile ou ambos.
-          required: true

@@ -1,6 +1,6 @@
-name: Melhoria
-description: Sugira uma melhoria em algo que ja existe.
-title: "[melhoria]: "
+name: "💎 Melhoria"
+description: "Algo existente pode ficar mais simples, bonito, rápido ou claro."
+title: "[💎 melhoria]: "
 labels:
   - enhancement
 body:
@@ -8,6 +8,7 @@ body:
     attributes:
       value: |
         Use este template para evoluir uma experiencia, fluxo, regra, tela ou implementacao existente.
+        Sem cerimônia: descreva a melhoria do jeito que ela apareceu pra você.
 
   - type: dropdown
     id: kind
@@ -23,16 +24,12 @@ body:
         - Documentacao
         - Developer experience
         - Outra
-    validations:
-      required: true
 
   - type: textarea
     id: current-state
     attributes:
       label: Situacao atual
       description: Como funciona hoje?
-    validations:
-      required: true
 
   - type: textarea
     id: improvement
@@ -48,8 +45,6 @@ body:
       label: Motivacao
       description: Por que isso melhora o Migles?
       placeholder: Ex. Reduz friccao para confirmar presenca, evita erro de organizador, melhora clareza da waitlist.
-    validations:
-      required: true
 
   - type: textarea
     id: affected-flows
