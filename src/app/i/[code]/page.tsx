@@ -97,12 +97,7 @@ export default function InvitePage({ params }: { params: Promise<{ code: string 
 
             {event.cover_url && (
               <div className="relative w-full h-44 rounded-xl overflow-hidden">
-                <Image
-                  src={event.cover_url}
-                  alt={event.title}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={event.cover_url} alt={event.title} fill className="object-cover" />
               </div>
             )}
 

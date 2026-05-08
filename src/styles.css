@@ -146,7 +146,8 @@
     color: var(--color-foreground);
   }
 
-  button, [role="button"] {
+  button,
+  [role="button"] {
     touch-action: manipulation;
   }
 }

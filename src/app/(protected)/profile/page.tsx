@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Camera, LogOut } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getProfile, updateProfile } from "@/services/profiles";
@@ -96,8 +97,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Perfil</h1>
+      <PageHeader title="Perfil">
         <Button
           variant="ghost"
           size="sm"
@@ -107,7 +107,7 @@ export default function ProfilePage() {
           <LogOut className="h-4 w-4" aria-hidden="true" />
           Sair
         </Button>
-      </div>
+      </PageHeader>
 
       <form onSubmit={handleSubmit((data) => updateMutation.mutate(data))} className="space-y-6">
         <div className="flex flex-col items-center gap-3">

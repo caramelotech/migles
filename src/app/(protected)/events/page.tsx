@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PageSpinner } from "@/components/page-spinner";
 import { SectionHeading } from "@/components/section-heading";
 import { EventCard } from "@/features/events/EventCard";
+import { PageHeader } from "@/components/page-header";
 
 export default function EventsPage() {
   const { user } = useAuth();
@@ -28,16 +29,14 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-balance">Eventos</h1>
+      <PageHeader title="Eventos">
         <Button size="sm" asChild>
           <Link href="/events/new">
             <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
             Criar
           </Link>
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Empty state */}
       {events.length === 0 && (

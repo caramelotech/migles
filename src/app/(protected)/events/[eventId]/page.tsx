@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   CalendarDays,
   MapPin,
   Wifi,
@@ -19,6 +18,7 @@ import {
   Trash2,
   UserMinus,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -170,28 +170,20 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
 
   return (
     <div className="space-y-6 w-full">
-      {/* Top bar */}
-      <div className="flex items-center justify-between gap-2">
-        <Button variant="ghost" size="icon" asChild aria-label="Voltar para eventos">
-          <Link href="/events">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Button>
-        <div className="flex items-center gap-2">
-          {isOrganizer && (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/events/${eventId}/edit`}>
-                <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
-                Editar
-              </Link>
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
-            <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
-            Compartilhar
+      <PageHeader back={{ href: "/events", label: "Voltar para eventos" }}>
+        {isOrganizer && (
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/events/${eventId}/edit`}>
+              <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
+              Editar
+            </Link>
           </Button>
-        </div>
-      </div>
+        )}
+        <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+          <Share2 className="h-4 w-4 mr-1" aria-hidden="true" />
+          Compartilhar
+        </Button>
+      </PageHeader>
 
       {/* Cover */}
       {event.cover_url && (
@@ -380,7 +372,12 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                 }
               }}
             />
-            <Button type="submit" size="icon" disabled={postingComment || !comment.trim()} aria-label="Publicar comentário">
+            <Button
+              type="submit"
+              size="icon"
+              disabled={postingComment || !comment.trim()}
+              aria-label="Publicar comentário"
+            >
               <Send className="h-4 w-4" aria-hidden="true" />
             </Button>
           </form>

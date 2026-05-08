@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   CalendarDays,
   Globe,
   Lock,
@@ -20,6 +19,7 @@ import {
   LogOut,
   Users,
 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -159,23 +159,13 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
 
   return (
     <div className="space-y-6 w-full">
-      <Button variant="ghost" size="sm" className="gap-1.5 -ml-2" asChild>
-        <Link href="/communities">
-          <ArrowLeft className="h-4 w-4" />
-          Comunidades
-        </Link>
-      </Button>
+      <PageHeader back={{ href: "/communities", label: "Comunidades", showLabel: true }} />
 
       {/* Cover / Header */}
       <div className="rounded-xl overflow-hidden border border-border bg-card">
         {community.cover_url ? (
           <div className="relative w-full h-40">
-            <Image
-              src={community.cover_url}
-              alt={community.name}
-              fill
-              className="object-cover"
-            />
+            <Image src={community.cover_url} alt={community.name} fill className="object-cover" />
           </div>
         ) : (
           <div className="w-full h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">

@@ -1,10 +1,10 @@
 "use client";
 
 import { use, useRef, useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Globe, Lock, Trash2 } from "lucide-react";
+import { Loader2, Globe, Lock, Trash2 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -134,15 +134,10 @@ export default function EditCommunityPage({
 
   return (
     <div className="space-y-6 w-full">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/communities/${communityId}`}>
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold tracking-tight">Editar comunidade</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/communities/${communityId}`, label: "Voltar para a comunidade" }}
+        title="Editar comunidade"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <CoverUpload

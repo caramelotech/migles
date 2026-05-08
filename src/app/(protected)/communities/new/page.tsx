@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Globe, Loader2, Lock } from "lucide-react";
+import { Globe, Loader2, Lock } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { createCommunity } from "@/services/communities";
@@ -80,14 +80,10 @@ export default function NewCommunityPage() {
 
   return (
     <div className="space-y-6 w-full">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/communities" aria-label="Voltar para comunidades">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold tracking-tight">Nova comunidade</h1>
-      </div>
+      <PageHeader
+        back={{ href: "/communities", label: "Voltar para comunidades" }}
+        title="Nova comunidade"
+      />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <CoverUpload

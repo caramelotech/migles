@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Search, Users } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/lib/auth-context";
 import { listMyCommunities, searchPublicCommunities } from "@/services/communities";
 import { Button } from "@/components/ui/button";
@@ -47,20 +48,21 @@ function CommunitiesContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-balance">Comunidades</h1>
+      <PageHeader title="Comunidades">
         <Button size="sm" asChild>
           <Link href="/communities/new">
             <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
             Nova
           </Link>
         </Button>
-      </div>
+      </PageHeader>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
+          aria-hidden="true"
+        />
         <Input
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
@@ -112,7 +114,10 @@ function CommunitiesContent() {
 
           {loadingSearch ? (
             <div role="status" className="flex justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary" aria-hidden="true" />
+              <div
+                className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"
+                aria-hidden="true"
+              />
               <span className="sr-only">Carregando…</span>
             </div>
           ) : discoveryResults.length === 0 ? (

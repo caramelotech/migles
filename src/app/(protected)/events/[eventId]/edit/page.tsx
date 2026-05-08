@@ -1,12 +1,12 @@
 "use client";
 
 import { use, useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { getEvent, updateEvent, deleteEvent } from "@/services/events";
@@ -165,14 +165,10 @@ export default function EditEventPage({ params }: { params: Promise<{ eventId: s
 
   return (
     <div className="space-y-6 w-full">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/events/${eventId}`} aria-label="Voltar para o evento">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold tracking-tight">Editar evento</h1>
-      </div>
+      <PageHeader
+        back={{ href: `/events/${eventId}`, label: "Voltar para o evento" }}
+        title="Editar evento"
+      />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <CoverUpload
