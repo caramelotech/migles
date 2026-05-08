@@ -75,6 +75,22 @@ export async function getEventOrganizerIds(eventId: string) {
   return (data ?? []).map((organizer) => organizer.user_id);
 }
 
+export async function addEventOrganizer(eventId: string, userId: string) {
+  const { error } = await supabase
+    .from("event_organizers")
+    .insert({ event_id: eventId, user_id: userId });
+  if (error) throw error;
+}
+
+export async function removeEventOrganizer(eventId: string, userId: string) {
+  const { error } = await supabase
+    .from("event_organizers")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
 export async function listCommunityEvents(communityId: string) {
   const { data, error } = await supabase
     .from("events")

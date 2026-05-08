@@ -36,7 +36,7 @@ import { listCommunityEvents } from "@/services/events";
 import { formatEventDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +57,6 @@ import {
 import { UserAvatar } from "@/components/user-avatar";
 import { PageSpinner } from "@/components/page-spinner";
 import { NotFound } from "@/components/not-found";
-import { SectionHeading } from "@/components/section-heading";
 import Image from "next/image";
 
 type PendingAction = { type: "remove" | "ban" | "leave"; userId: string; name: string };
@@ -238,17 +237,71 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
         </div>
       </div>
 
-      <Separator />
+      <Tabs defaultValue="eventos">
+        <TabsList className="w-full">
+          <TabsTrigger value="eventos" className="flex-1 gap-1.5">
+            <CalendarDays className="h-4 w-4" />
+            Eventos
+          </TabsTrigger>
+          <TabsTrigger value="membros" className="flex-1 gap-1.5">
+            <Users className="h-4 w-4" />
+            Membros{!loadingMembers && isMember ? ` (${members.length})` : ""}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Members */}
-      {isMember && (
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <SectionHeading>Membros {!loadingMembers && `(${members.length})`}</SectionHeading>
-          </div>
+        {/* Events tab */}
+        <TabsContent value="eventos" className="mt-4">
+          {loadingEvents ? (
+            <div className="flex justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary" />
+            </div>
+          ) : events.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <CalendarDays className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Nenhum evento nesta comunidade ainda.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {events.map((event) => (
+                <Link
+                  key={event.id}
+                  href={`/events/${event.id}`}
+                  className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
+                >
+                  {event.cover_url && (
+                    <div className="h-12 w-12 rounded-lg overflow-hidden shrink-0">
+                      <Image
+                        src={event.cover_url}
+                        alt={event.title}
+                        width={48}
+                        height={48}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{event.title}</p>
+                    <span className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+                      <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                      {formatEventDate(event.starts_at)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-          {loadingMembers ? (
+        {/* Members tab */}
+        <TabsContent value="membros" className="mt-4">
+          {!isMember ? (
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <Users className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Entre na comunidade para ver os membros.
+              </p>
+            </div>
+          ) : loadingMembers ? (
             <div className="flex justify-center py-6">
               <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary" />
             </div>
@@ -335,55 +388,8 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
               })}
             </div>
           )}
-        </section>
-      )}
-
-      <Separator />
-
-      {/* Events */}
-      <section className="space-y-3">
-        <SectionHeading>Eventos</SectionHeading>
-
-        {loadingEvents ? (
-          <div className="flex justify-center py-8">
-            <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary" />
-          </div>
-        ) : events.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <CalendarDays className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Nenhum evento nesta comunidade ainda.</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {events.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="w-full rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors p-4 flex items-center gap-4"
-              >
-                {event.cover_url && (
-                  <div className="h-12 w-12 rounded-lg overflow-hidden shrink-0">
-                    <Image
-                      src={event.cover_url}
-                      alt={event.title}
-                      width={48}
-                      height={48}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{event.title}</p>
-                  <span className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
-                    <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-                    {formatEventDate(event.starts_at)}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+        </TabsContent>
+      </Tabs>
 
       {/* Confirmation dialog */}
       <AlertDialog open={!!pendingAction} onOpenChange={(o) => !o && setPendingAction(null)}>

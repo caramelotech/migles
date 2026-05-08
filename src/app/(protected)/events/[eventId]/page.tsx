@@ -8,7 +8,11 @@ import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
+  ChevronDown,
   MapPin,
+  MoreHorizontal,
+  Shield,
+  ShieldOff,
   Wifi,
   Users,
   Pencil,
@@ -30,12 +34,21 @@ import {
   addComment,
   deleteComment,
   removeRsvp,
+  addEventOrganizer,
+  removeEventOrganizer,
   type RsvpStatus,
 } from "@/services/events";
 import { formatEventDate, formatRelativeDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
@@ -64,6 +77,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
   const [comment, setComment] = useState("");
   const [postingComment, setPostingComment] = useState(false);
   const [rsvpLoading, setRsvpLoading] = useState(false);
+  const [participantsExpanded, setParticipantsExpanded] = useState(false);
 
   const { data: event, isLoading: loadingEvent } = useQuery({
     queryKey: ["event", eventId],
@@ -139,6 +153,26 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       toast.success("RSVP removido.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao remover RSVP.");
+    }
+  }
+
+  async function handleAddOrganizer(userId: string) {
+    try {
+      await addEventOrganizer(eventId, userId);
+      qc.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      toast.success("Organizador adicionado.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao adicionar organizador.");
+    }
+  }
+
+  async function handleRemoveOrganizer(userId: string) {
+    try {
+      await removeEventOrganizer(eventId, userId);
+      qc.invalidateQueries({ queryKey: ["event-organizers", eventId] });
+      toast.success("Organizador removido.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao remover organizador.");
     }
   }
 
@@ -223,7 +257,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
             <Users className="h-4 w-4 shrink-0" />
             {event.capacity && event.capacity > 0
               ? `${confirmedRsvps.length}/${event.capacity} confirmados`
-              : `${confirmedRsvps.length} confirmados`}
+              : `${rsvps.length} ${rsvps.length === 1 ? "convidado" : "convidados"}`}
           </span>
         </div>
 
@@ -276,27 +310,143 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
       <Separator />
 
       {/* Confirmed attendees */}
-      {confirmedRsvps.length > 0 && (
+      {(confirmedRsvps.length > 0 || (isOrganizer && rsvps.length > 0)) && (
         <section className="space-y-3">
-          <h2 className="font-semibold">Confirmados ({confirmedRsvps.length})</h2>
-          <div className="flex flex-wrap gap-3">
-            {confirmedRsvps.map((r) => {
-              const profile = (
-                r as unknown as {
-                  profiles: { display_name: string | null; avatar_url: string | null };
-                }
-              ).profiles;
-              const name = profile?.display_name ?? "Usuário";
-              return (
-                <div key={r.user_id} className="flex flex-col items-center gap-1">
-                  <UserAvatar name={name} avatarUrl={profile?.avatar_url} size="lg" />
-                  <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
-                    {name}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">
+              Convidados ({rsvps.length})
+            </h2>
+            <button
+              onClick={() => setParticipantsExpanded((v) => !v)}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              aria-expanded={participantsExpanded}
+            >
+              {participantsExpanded
+                ? "Recolher"
+                : isOrganizer
+                  ? "Gerenciar"
+                  : "Ver todos"}
+              <ChevronDown
+                className={cn("h-4 w-4 transition-transform", participantsExpanded && "rotate-180")}
+                aria-hidden="true"
+              />
+            </button>
           </div>
+
+          {/* Collapsed: avatar grid */}
+          {!participantsExpanded && confirmedRsvps.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              {confirmedRsvps.map((r) => {
+                const profile = (
+                  r as unknown as {
+                    profiles: { display_name: string | null; avatar_url: string | null };
+                  }
+                ).profiles;
+                const name = profile?.display_name ?? "Usuário";
+                const isMe = r.user_id === user?.id;
+                return (
+                  <div key={r.user_id} className="flex flex-col items-center gap-0.5">
+                    <UserAvatar name={name} avatarUrl={profile?.avatar_url} size="lg" />
+                    <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
+                      {name}
+                    </span>
+                    {isMe && (
+                      <span className="text-[10px] text-muted-foreground">(você)</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Expanded: full list by status with management actions for organizers */}
+          {participantsExpanded && (
+            <div className="space-y-4">
+              {RSVP_STATUS_SECTIONS.map(({ label, status }) => {
+                if (!isOrganizer && status !== "confirmed") return null;
+                type RsvpWithProfile = {
+                  user_id: string;
+                  status: RsvpStatus;
+                  waitlist_position: number | null;
+                  profiles: { display_name: string | null; avatar_url: string | null } | null;
+                };
+                const group = (rsvps as unknown as RsvpWithProfile[]).filter(
+                  (r) => r.status === status,
+                );
+                if (group.length === 0) return null;
+                return (
+                  <div key={status} className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-medium">
+                      {label} ({group.length})
+                    </p>
+                    {group.map((r) => {
+                      const name = r.profiles?.display_name ?? "Usuário";
+                      const isMe = r.user_id === user?.id;
+                      const isThisOrganizer = organizerIds.includes(r.user_id);
+                      const isCreator = r.user_id === event.created_by;
+                      return (
+                        <div
+                          key={r.user_id}
+                          className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/30 transition-colors"
+                        >
+                          <UserAvatar
+                            name={name}
+                            avatarUrl={r.profiles?.avatar_url}
+                            size="sm"
+                            className="shrink-0"
+                          />
+                          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <span className="text-sm truncate">{name}</span>
+                            {isMe && (
+                              <span className="text-xs text-muted-foreground shrink-0">(você)</span>
+                            )}
+                          </div>
+                          {status === "waitlisted" && r.waitlist_position != null && (
+                            <span className="text-xs text-muted-foreground">
+                              #{r.waitlist_position}
+                            </span>
+                          )}
+                          {isOrganizer && !isMe && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {isThisOrganizer ? (
+                                  <DropdownMenuItem
+                                    disabled={isCreator}
+                                    onClick={() => !isCreator && handleRemoveOrganizer(r.user_id)}
+                                  >
+                                    <ShieldOff className="h-4 w-4 mr-2" />
+                                    Remover de organizador
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => handleAddOrganizer(r.user_id)}>
+                                    <Shield className="h-4 w-4 mr-2" />
+                                    Tornar organizador
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive"
+                                  onClick={() => handleRemoveRsvp(r.user_id)}
+                                >
+                                  <UserMinus className="h-4 w-4 mr-2" />
+                                  Remover do evento
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 
@@ -383,67 +533,6 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
           </form>
         )}
       </section>
-
-      {/* Organizer: manage all RSVPs */}
-      {isOrganizer && rsvps.length > 0 && (
-        <>
-          <Separator />
-          <section className="space-y-3">
-            <h2 className="font-semibold">Gerenciar participantes</h2>
-            {RSVP_STATUS_SECTIONS.map(({ label, status }) => {
-              type RsvpWithProfile = {
-                user_id: string;
-                status: RsvpStatus;
-                waitlist_position: number | null;
-                profiles: { display_name: string | null; avatar_url: string | null } | null;
-              };
-              const group = (rsvps as unknown as RsvpWithProfile[]).filter(
-                (r) => r.status === status,
-              );
-              if (group.length === 0) return null;
-              return (
-                <div key={status} className="space-y-1">
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                    {label} ({group.length})
-                  </p>
-                  {group.map((r) => {
-                    const name = r.profiles?.display_name ?? "Usuário";
-                    const avatarUrl = r.profiles?.avatar_url;
-                    return (
-                      <div
-                        key={r.user_id}
-                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/30 transition-colors"
-                      >
-                        <UserAvatar
-                          name={name}
-                          avatarUrl={avatarUrl}
-                          size="sm"
-                          className="shrink-0"
-                        />
-                        <span className="flex-1 text-sm truncate">{name}</span>
-                        {r.status === "waitlisted" && r.waitlist_position != null && (
-                          <span className="text-xs text-muted-foreground">
-                            #{r.waitlist_position}
-                          </span>
-                        )}
-                        {r.user_id !== user?.id && (
-                          <button
-                            onClick={() => handleRemoveRsvp(r.user_id)}
-                            className="text-muted-foreground hover:text-destructive transition-colors"
-                            aria-label="Remover RSVP"
-                          >
-                            <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </section>
-        </>
-      )}
 
       {/* Share dialog */}
       <ShareEventDialog
