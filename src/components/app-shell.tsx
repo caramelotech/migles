@@ -2,17 +2,17 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Home, Plus, User, Sun, Moon, LogOut, Menu } from "lucide-react";
+import { Home, CalendarDays, Plus, User, Sun, Moon, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { Button } from "@/components/ui/button";
 import { listMyCommunities } from "@/services/communities";
 import type { ReactNode } from "react";
-import { useState } from "react";
 
 const navItems = [
-  { href: "/events", label: "Início", icon: Home },
+  { href: "/feed", label: "Início", icon: Home },
+  { href: "/events", label: "Eventos", icon: CalendarDays },
   { href: "/events/new", label: "Criar", icon: Plus },
   { href: "/profile", label: "Perfil", icon: User },
 ] as const;
@@ -35,7 +35,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: memberships = [] } = useQuery({
     queryKey: ["my-communities", user?.id],
@@ -44,6 +43,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   });
 
   const isActive = (href: string) => {
+    if (href === "/feed") {
+      return pathname === "/feed";
+    }
     if (href === "/events") {
       return (
         pathname === "/events" || (pathname.startsWith("/events/") && pathname !== "/events/new")
@@ -57,7 +59,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:w-60 lg:w-64 shrink-0 border-r border-border flex-col sticky top-0 h-screen">
         <Link
-          href="/events"
+          href="/feed"
           className="px-4 h-14 flex items-center gap-2 font-semibold tracking-tight hover:opacity-80"
         >
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold">
@@ -153,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/95 backdrop-blur">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);

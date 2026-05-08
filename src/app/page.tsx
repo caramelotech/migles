@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/events");
+      router.push("/feed");
     }
   }, [user, loading, router]);
 

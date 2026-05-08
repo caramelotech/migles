@@ -29,7 +29,15 @@ function rsvpBadge(status: RsvpStatus | null) {
   return <Badge variant="outline">Participar</Badge>;
 }
 
-export function EventCard({ event, href }: { event: EventWithCounts; href: string }) {
+export function EventCard({
+  event,
+  href,
+  priority,
+}: {
+  event: EventWithCounts;
+  href: string;
+  priority?: boolean;
+}) {
   const isOnline = event.location_type === "online";
 
   return (
@@ -45,6 +53,7 @@ export function EventCard({ event, href }: { event: EventWithCounts; href: strin
             fill
             sizes="(max-width: 768px) 100vw, 600px"
             className="object-cover"
+            priority={priority}
           />
         </div>
       )}

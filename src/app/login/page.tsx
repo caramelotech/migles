@@ -58,7 +58,7 @@ function SignInForm() {
       setServerError(error.message);
     } else {
       toast.success("Logado com sucesso!");
-      router.push("/events");
+      router.push("/feed");
     }
 
     setSubmitting(false);
@@ -168,7 +168,7 @@ function SignUpForm() {
     }
 
     toast.success("Conta criada com sucesso!");
-    router.push("/events");
+    router.push("/feed");
   }
 
   return (
@@ -254,7 +254,7 @@ function LoginPageInner() {
 
   useEffect(() => {
     if (!loading && user) {
-      const redirect = searchParams.get("redirect") || "/events";
+      const redirect = searchParams.get("redirect") || "/feed";
       router.push(redirect);
     }
   }, [user, loading, router, searchParams]);

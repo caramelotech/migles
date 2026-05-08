@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Globe, Lock } from "lucide-react";
 import { type CommunityRow } from "@/services/communities";
 import { Badge } from "@/components/ui/badge";
@@ -23,11 +24,21 @@ export function CommunityCard({
     >
       <div
         className={cn(
-          "h-11 w-11 shrink-0 rounded-lg flex items-center justify-center text-white font-bold text-lg",
-          avatarColor(community.id),
+          "h-11 w-11 shrink-0 rounded-lg overflow-hidden flex items-center justify-center text-white font-bold text-lg",
+          !community.cover_url && avatarColor(community.id),
         )}
       >
-        {initial}
+        {community.cover_url ? (
+          <Image
+            src={community.cover_url}
+            alt={community.name}
+            width={44}
+            height={44}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          initial
+        )}
       </div>
 
       <div className="flex-1 min-w-0">

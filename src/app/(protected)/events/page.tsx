@@ -64,8 +64,13 @@ export default function EventsPage() {
         <section className="space-y-3">
           <SectionHeading>Próximos</SectionHeading>
           <div className="flex flex-col gap-2">
-            {upcoming.map((event) => (
-              <EventCard key={event.id} event={event} href={`/events/${event.id}`} />
+            {upcoming.map((event, i) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                href={`/events/${event.id}`}
+                priority={i === 0}
+              />
             ))}
           </div>
         </section>
