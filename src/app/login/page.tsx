@@ -5,14 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ArrowLeft, MailCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { createUser } from "@/app/actions/auth";
 import {
   signInSchema,
   signUpSchema,
+  forgotPasswordSchema,
   type SignInValues,
   type SignUpValues,
+  type ForgotPasswordValues,
 } from "@/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { PublicNavbar } from "@/components/public-navbar";
@@ -22,7 +25,116 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Notification } from "@/components/notification";
 import { cn } from "@/lib/utils";
 
-function SignInForm() {
+function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors, touchedFields },
+  } = useForm<ForgotPasswordValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  });
+
+  async function onSubmit(data: ForgotPasswordValues) {
+    setSubmitting(true);
+    setServerError(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setServerError(error.message);
+    } else {
+      setSent(true);
+    }
+
+    setSubmitting(false);
+  }
+
+  if (sent) {
+    return (
+      <div className="space-y-4 mt-4">
+        <div className="flex flex-col items-center gap-3 py-6 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <MailCheck className="h-6 w-6 text-primary" aria-hidden="true" />
+          </div>
+          <div>
+            <p className="font-medium">E-mail enviado</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Enviamos as instruções para <span className="font-medium">{getValues("email")}</span>.
+              Verifique sua caixa de entrada.
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" className="w-full" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4 mr-1.5" aria-hidden="true" />
+          Voltar para o login
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 mt-4">
+      <div>
+        <h2 className="font-semibold">Recuperar senha</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Digite seu e-mail e enviaremos um link para redefinir sua senha.
+        </p>
+      </div>
+
+      {serverError && (
+        <Notification
+          variant="error"
+          message={serverError}
+          onDismiss={() => setServerError(null)}
+        />
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="forgot-email">E-mail</Label>
+          <Input
+            id="forgot-email"
+            type="email"
+            autoComplete="email"
+            autoFocus
+            {...register("email")}
+            className={cn(
+              touchedFields.email && errors.email && "border-red-500 focus-visible:ring-red-500",
+              touchedFields.email && !errors.email && "border-green-500 focus-visible:ring-green-500",
+            )}
+          />
+          {errors.email && (
+            <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
+          )}
+        </div>
+
+        <Button type="submit" className="w-full" disabled={submitting}>
+          {submitting ? "Enviando…" : "Enviar link de recuperação"}
+        </Button>
+      </form>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+        Voltar para o login
+      </button>
+    </div>
+  );
+}
+
+function SignInForm({ onForgotPassword }: { onForgotPassword: () => void }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -89,7 +201,16 @@ function SignInForm() {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="password">Senha</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Senha</Label>
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Esqueci minha senha
+          </button>
+        </div>
         <Input
           id="password"
           type="password"
@@ -249,6 +370,7 @@ function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
+  const [view, setView] = useState<"tabs" | "forgot">("tabs");
 
   const defaultTab = searchParams.get("tab") === "signup" ? "signup" : "signin";
 
@@ -271,18 +393,23 @@ function LoginPageInner() {
             Entre ou crie sua conta para começar.
           </p>
           <div className="my-6 h-px bg-border" />
-          <Tabs defaultValue={defaultTab}>
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="signin">Entrar</TabsTrigger>
-              <TabsTrigger value="signup">Criar conta</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin">
-              <SignInForm />
-            </TabsContent>
-            <TabsContent value="signup">
-              <SignUpForm />
-            </TabsContent>
-          </Tabs>
+
+          {view === "forgot" ? (
+            <ForgotPasswordForm onBack={() => setView("tabs")} />
+          ) : (
+            <Tabs defaultValue={defaultTab}>
+              <TabsList className="grid grid-cols-2 w-full">
+                <TabsTrigger value="signin">Entrar</TabsTrigger>
+                <TabsTrigger value="signup">Criar conta</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin">
+                <SignInForm onForgotPassword={() => setView("forgot")} />
+              </TabsContent>
+              <TabsContent value="signup">
+                <SignUpForm />
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
       </div>
     </div>
