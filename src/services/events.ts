@@ -118,7 +118,7 @@ export async function listCommunityEvents(
 export async function getEventRsvps(eventId: string) {
   const { data, error } = await supabase
     .from("rsvps")
-    .select("*, profiles:user_id(display_name, avatar_url)")
+    .select("*, profiles:user_id(display_name, avatar_url, username)")
     .eq("event_id", eventId)
     .order("created_at", { ascending: true });
   if (error) throw error;
@@ -202,11 +202,83 @@ export async function updateEvent(
 export async function listEventComments(eventId: string) {
   const { data, error } = await supabase
     .from("event_comments")
-    .select("*, profiles:user_id(display_name, avatar_url)")
+    .select("*, profiles:user_id(display_name, avatar_url, username)")
     .eq("event_id", eventId)
     .order("created_at", { ascending: true });
   if (error) throw error;
   return data ?? [];
+}
+
+export async function listUserEventsForProfile(
+  targetUserId: string,
+  viewerUserId: string,
+): Promise<EventWithCounts[]> {
+  const [membershipsResult, rsvpsResult] = await Promise.all([
+    supabase
+      .from("community_members")
+      .select("community_id")
+      .eq("user_id", viewerUserId)
+      .eq("status", "active"),
+    supabase.from("rsvps").select("event_id, status").eq("user_id", viewerUserId),
+  ]);
+
+  const viewerCommunityIds = (membershipsResult.data ?? []).map((m) => m.community_id);
+  const viewerRsvps = rsvpsResult.data ?? [];
+  const viewerRsvpEventIds = viewerRsvps.map((r) => r.event_id);
+
+  const promises: Promise<{ data: unknown[] | null; error: unknown }>[] = [];
+
+  if (viewerCommunityIds.length > 0) {
+    promises.push(
+      supabase
+        .from("events")
+        .select("*, communities(name), rsvps(status, user_id)")
+        .eq("created_by", targetUserId)
+        .eq("visibility", "community")
+        .in("community_id", viewerCommunityIds)
+        .order("starts_at", { ascending: true }) as unknown as Promise<{
+        data: unknown[] | null;
+        error: unknown;
+      }>,
+    );
+  }
+
+  if (viewerRsvpEventIds.length > 0) {
+    promises.push(
+      supabase
+        .from("events")
+        .select("*, communities(name), rsvps(status, user_id)")
+        .eq("created_by", targetUserId)
+        .eq("visibility", "private")
+        .in("id", viewerRsvpEventIds)
+        .order("starts_at", { ascending: true }) as unknown as Promise<{
+        data: unknown[] | null;
+        error: unknown;
+      }>,
+    );
+  }
+
+  const results = await Promise.all(promises);
+  for (const r of results) {
+    if (r.error) throw r.error;
+  }
+
+  const all = results.flatMap((r) => r.data ?? []) as Array<EventWithFullJoins>;
+  const seen = new Set<string>();
+  return all
+    .filter((e) => {
+      if (seen.has(e.id)) return false;
+      seen.add(e.id);
+      return true;
+    })
+    .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+    .map((e) => ({
+      ...e,
+      confirmed_count: countConfirmed(e.rsvps),
+      my_rsvp: e.rsvps.find((r) => r.user_id === viewerUserId)?.status ?? null,
+      community_name: e.communities?.name ?? null,
+      creator_name: null,
+    }));
 }
 
 export async function addComment(

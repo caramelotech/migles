@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -340,19 +341,30 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
               {confirmedRsvps.map((r) => {
                 const profile = (
                   r as unknown as {
-                    profiles: { display_name: string | null; avatar_url: string | null };
+                    profiles: {
+                      display_name: string | null;
+                      avatar_url: string | null;
+                      username: string | null;
+                    };
                   }
                 ).profiles;
                 const name = profile?.display_name ?? "Usuário";
                 const isMe = r.user_id === user?.id;
-                return (
+                const inner = (
                   <div key={r.user_id} className="flex flex-col items-center gap-0.5">
                     <UserAvatar name={name} avatarUrl={profile?.avatar_url} size="lg" />
-                    <span className="text-xs text-muted-foreground max-w-[5rem] truncate text-center">
+                    <span className="text-xs text-muted-foreground max-w-20 truncate text-center">
                       {name}
                     </span>
                     {isMe && <span className="text-[10px] text-muted-foreground">(você)</span>}
                   </div>
+                );
+                return profile?.username && !isMe ? (
+                  <Link key={r.user_id} href={`/u/${profile.username}`}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={r.user_id}>{inner}</div>
                 );
               })}
             </div>
@@ -367,7 +379,11 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                   user_id: string;
                   status: RsvpStatus;
                   waitlist_position: number | null;
-                  profiles: { display_name: string | null; avatar_url: string | null } | null;
+                  profiles: {
+                    display_name: string | null;
+                    avatar_url: string | null;
+                    username: string | null;
+                  } | null;
                 };
                 const group = (rsvps as unknown as RsvpWithProfile[]).filter(
                   (r) => r.status === status,
@@ -380,6 +396,7 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                     </p>
                     {group.map((r) => {
                       const name = r.profiles?.display_name ?? "Usuário";
+                      const username = r.profiles?.username;
                       const isMe = r.user_id === user?.id;
                       const isThisOrganizer = organizerIds.includes(r.user_id);
                       const isCreator = r.user_id === event.created_by;
@@ -388,14 +405,33 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
                           key={r.user_id}
                           className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent/30 transition-colors"
                         >
-                          <UserAvatar
-                            name={name}
-                            avatarUrl={r.profiles?.avatar_url}
-                            size="sm"
-                            className="shrink-0"
-                          />
+                          {username && !isMe ? (
+                            <Link href={`/u/${username}`} className="shrink-0">
+                              <UserAvatar
+                                name={name}
+                                avatarUrl={r.profiles?.avatar_url}
+                                size="sm"
+                              />
+                            </Link>
+                          ) : (
+                            <UserAvatar
+                              name={name}
+                              avatarUrl={r.profiles?.avatar_url}
+                              size="sm"
+                              className="shrink-0"
+                            />
+                          )}
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <span className="text-sm truncate">{name}</span>
+                            {username && !isMe ? (
+                              <Link
+                                href={`/u/${username}`}
+                                className="text-sm truncate hover:underline"
+                              >
+                                {name}
+                              </Link>
+                            ) : (
+                              <span className="text-sm truncate">{name}</span>
+                            )}
                             {isMe && (
                               <span className="text-xs text-muted-foreground shrink-0">(você)</span>
                             )}
@@ -468,21 +504,39 @@ export default function EventPage({ params }: { params: Promise<{ eventId: strin
               content: string;
               created_at: string;
               user_id: string;
-              profiles: { display_name: string | null; avatar_url: string | null };
+              profiles: {
+                display_name: string | null;
+                avatar_url: string | null;
+                username: string | null;
+              };
             }>
           ).map((c) => {
             const name = c.profiles?.display_name ?? "Usuário";
-            const canDelete = user?.id === c.user_id || isOrganizer;
+            const username = c.profiles?.username;
+            const isMe = c.user_id === user?.id;
+            const canDelete = isMe || isOrganizer;
             return (
               <div key={c.id} className="flex gap-3 group">
-                <UserAvatar
-                  name={name}
-                  avatarUrl={c.profiles?.avatar_url}
-                  className="shrink-0 mt-0.5"
-                />
+                {username && !isMe ? (
+                  <Link href={`/u/${username}`} className="shrink-0 mt-0.5">
+                    <UserAvatar name={name} avatarUrl={c.profiles?.avatar_url} />
+                  </Link>
+                ) : (
+                  <UserAvatar
+                    name={name}
+                    avatarUrl={c.profiles?.avatar_url}
+                    className="shrink-0 mt-0.5"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-medium">{name}</span>
+                    {username && !isMe ? (
+                      <Link href={`/u/${username}`} className="text-sm font-medium hover:underline">
+                        {name}
+                      </Link>
+                    ) : (
+                      <span className="text-sm font-medium">{name}</span>
+                    )}
                     <span className="text-xs text-muted-foreground">
                       {formatRelativeDate(c.created_at)}
                     </span>

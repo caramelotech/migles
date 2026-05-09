@@ -11,7 +11,12 @@ type MemberWithProfile = {
   user_id: string;
   role: CommunityMemberRole;
   joined_at: string;
-  profiles: { id: string; display_name: string | null; avatar_url: string | null } | null;
+  profiles: {
+    id: string;
+    display_name: string | null;
+    avatar_url: string | null;
+    username: string | null;
+  } | null;
 };
 
 type MemberWithCommunity = {
@@ -107,12 +112,41 @@ export async function getCommunity(communityId: string) {
 export async function listCommunityMembers(communityId: string): Promise<MemberWithProfile[]> {
   const { data, error } = await supabase
     .from("community_members")
-    .select("id, user_id, role, joined_at, profiles:user_id(id, display_name, avatar_url)")
+    .select(
+      "id, user_id, role, joined_at, profiles:user_id(id, display_name, avatar_url, username)",
+    )
     .eq("community_id", communityId)
     .eq("status", "active")
     .order("joined_at", { ascending: true });
   if (error) throw error;
   return (data ?? []) as unknown as MemberWithProfile[];
+}
+
+export async function listSharedCommunities(
+  viewerUserId: string,
+  targetUserId: string,
+): Promise<Array<CommunityRow>> {
+  const { data: viewerMemberships, error: err1 } = await supabase
+    .from("community_members")
+    .select("community_id")
+    .eq("user_id", viewerUserId)
+    .eq("status", "active");
+  if (err1) throw err1;
+
+  const viewerCommunityIds = (viewerMemberships ?? []).map((m) => m.community_id);
+  if (viewerCommunityIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("community_members")
+    .select("communities(*)")
+    .eq("user_id", targetUserId)
+    .eq("status", "active")
+    .in("community_id", viewerCommunityIds);
+  if (error) throw error;
+
+  return (data ?? [])
+    .map((m) => (m as unknown as { communities: CommunityRow }).communities)
+    .filter(Boolean);
 }
 
 export async function updateMemberRole(

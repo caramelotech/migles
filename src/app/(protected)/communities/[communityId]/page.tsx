@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -281,18 +282,33 @@ export default function CommunityPage({ params }: { params: Promise<{ communityI
                       key={m.id}
                       className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent/30 transition-colors"
                     >
-                      <UserAvatar
-                        name={name}
-                        avatarUrl={m.profiles?.avatar_url}
-                        className="shrink-0"
-                      />
+                      {m.profiles?.username && !isCurrentUser ? (
+                        <Link href={`/u/${m.profiles.username}`} className="shrink-0">
+                          <UserAvatar name={name} avatarUrl={m.profiles?.avatar_url} />
+                        </Link>
+                      ) : (
+                        <UserAvatar
+                          name={name}
+                          avatarUrl={m.profiles?.avatar_url}
+                          className="shrink-0"
+                        />
+                      )}
                       <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium truncate block">
-                          {name}
-                          {isCurrentUser && (
-                            <span className="ml-1.5 text-xs text-muted-foreground">(você)</span>
-                          )}
-                        </span>
+                        {m.profiles?.username && !isCurrentUser ? (
+                          <Link
+                            href={`/u/${m.profiles.username}`}
+                            className="text-sm font-medium truncate block hover:underline"
+                          >
+                            {name}
+                          </Link>
+                        ) : (
+                          <span className="text-sm font-medium truncate block">
+                            {name}
+                            {isCurrentUser && (
+                              <span className="ml-1.5 text-xs text-muted-foreground">(você)</span>
+                            )}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <Badge variant={isThisAdmin ? "default" : "outline"} className="text-xs">
