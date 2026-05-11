@@ -97,16 +97,20 @@ src/
     api/               - API Routes do Next.js (operações server-side)
     i/[code]/          - Página de convite por link
     login/             - Login e cadastro
-  components/          - Componentes de UI (shadcn/ui)
+    reset-password/    - Recuperação de senha
+    u/[username]/      - Perfil público por username
+  components/          - Componentes de UI compartilhados (shadcn/ui)
+  features/            - Módulos por domínio (UI + lógica co-localizados)
+  schemas/             - Schemas Zod (fonte única de validação por entidade)
+  hooks/               - Custom hooks compartilhados
   integrations/
     supabase/          - Clientes Supabase (client-side e server-side) e tipos gerados
-  lib/                 - Contextos de auth e tema, utilitários e helpers
+  lib/                 - Contextos de auth, helpers de upload e utilitários
   services/            - Acesso a dados e lógica de negócio (via Supabase client)
 supabase/
   migrations/          - Migrações SQL do banco de dados
 docs/
   spec-v1.md           - Especificação de produto
-  design-system.md     - Sistema de design (tokens, componentes)
 ```
 
 ## Banco de dados
@@ -127,11 +131,6 @@ Todas as tabelas usam Row Level Security (RLS). As migrações ficam em `supabas
 ## Especificações
 
 Todas as decisões de produto e arquitetura estão documentadas em `docs/`:
-
-| Arquivo                 | Conteúdo                                |
-| ----------------------- | --------------------------------------- |
-| `docs/spec-v1.md`       | Especificação de produto v1             |
-| `docs/design-system.md` | Sistema de design (tokens, componentes) |
 
 Para mudanças no produto, atualize a spec **antes** de implementar.
 

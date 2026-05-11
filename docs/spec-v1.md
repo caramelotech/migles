@@ -5,8 +5,8 @@
 
 | Campo  | Valor                                |
 | ------ | ------------------------------------ |
-| Versão | 1.0                                  |
-| Status | `[em discussão]`                     |
+| Versão | 1.2                                  |
+| Status | `[em desenvolvimento]`               |
 | Data   | Abril 2026                           |
 | Time   | 2–4 pessoas                          |
 | Stack  | React Native · Next.js 15 · Supabase |
@@ -104,7 +104,7 @@ Ver seção [11. Fora do Escopo](#11-fora-do-escopo).
 
 Representa qualquer pessoa cadastrada na plataforma.
 
-**Atributos principais:** nome, e-mail, foto de perfil, método de autenticação.
+**Atributos principais:** nome, e-mail, username (único), foto de perfil, método de autenticação.
 
 **Papéis possíveis (por contexto):**
 
@@ -155,6 +155,7 @@ Agrupa usuários com interesses comuns e centraliza seus eventos.
 | Atributo              | Tipo   | Obrigatório | Notas                |
 | --------------------- | ------ | ----------- | -------------------- |
 | Nome                  | string | sim         | —                    |
+| Slug                  | string | sim         | Único, usado na URL  |
 | Descrição             | string | não         | —                    |
 | Avatar/foto           | image  | não         | —                    |
 | Tipo                  | enum   | sim         | `public` · `private` |
@@ -170,36 +171,35 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 ### 7.1 Autenticação
 
-- [ ] Cadastro e login via **e-mail e senha** com validação de e-mail
-- [ ] Login social via **Google**
-- [ ] Login social via **Apple**
-- [ ] Sessão persistente com renovação automática de token (JWT)
+- [x] Cadastro e login via **e-mail e senha** com validação de e-mail
+- [x] Recuperação de senha por e-mail
+- [x] Sessão persistente com renovação automática de token (JWT)
 - [ ] Todas as modalidades disponíveis em mobile e web
 
 ### 7.2 Gestão de Eventos
 
 #### Criação
 
-- [ ] Criar evento com título, descrição, data, horário e local
-- [ ] Definir limite de vagas (opcional)
-- [ ] Vincular evento a uma comunidade (requer ser admin/organizer da comunidade)
-- [ ] Definir visibilidade: `private` ou `community`
+- [x] Criar evento com título, descrição, data, horário e local
+- [x] Definir limite de vagas (opcional)
+- [x] Vincular evento a uma comunidade (requer ser admin/organizer da comunidade)
+- [x] Definir visibilidade: `private` ou `community`
 - [ ] Definir múltiplos organizadores no momento da criação ou posteriormente
 
 #### Participantes e Convites
 
-- [ ] Convidar usuários da plataforma diretamente (por nome ou busca)
-- [ ] Gerar link de convite compartilhável
+- [x] Convidar usuários da plataforma diretamente (por nome ou busca)
+- [x] Gerar link de convite compartilhável
 - [ ] Gerar QR code do evento
 - [ ] Compartilhar evento via WhatsApp (deep link para a plataforma web)
 - [ ] Organizador pode remover RSVP de participante manualmente
 
 #### RSVP
 
-- [ ] Participante pode confirmar presença (`confirmed`)
-- [ ] Participante pode recusar convite (`declined`)
-- [ ] Participante pode alterar sua resposta enquanto o evento não ocorreu
-- [ ] Estado inicial ao receber convite: `pending`
+- [x] Participante pode confirmar presença (`confirmed`)
+- [x] Participante pode recusar convite (`declined`)
+- [x] Participante pode alterar sua resposta enquanto o evento não ocorreu
+- [x] Estado inicial ao receber convite: `pending`
 
 #### Lista de Espera
 
@@ -218,9 +218,9 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 #### Criação
 
-- [ ] Qualquer usuário pode criar uma comunidade, tornando-se automaticamente admin
-- [ ] Definir nome, descrição e avatar
-- [ ] Definir tipo: `public` ou `private`
+- [x] Qualquer usuário pode criar uma comunidade, tornando-se automaticamente admin
+- [x] Definir nome, descrição e avatar
+- [x] Definir tipo: `public` ou `private`
 - [ ] Configurar mecanismos de entrada habilitados (combinação possível):
   - Link de convite / QR code
   - Solicitação + aprovação do admin
@@ -228,10 +228,10 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 #### Entrada de Membros
 
-- [ ] Buscar comunidade por nome ou código
-- [ ] Entrar diretamente em comunidade pública
+- [x] Buscar comunidade por nome ou código
+- [x] Entrar diretamente em comunidade pública
 - [ ] Solicitar entrada em comunidade privada
-- [ ] Admin pode convidar usuário diretamente
+- [x] Admin pode convidar usuário diretamente
 - [ ] Admin aprova ou recusa solicitações pendentes
 
 #### Administração
@@ -243,9 +243,12 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 ### 7.4 Discovery e Compartilhamento
 
-- [ ] Busca manual de comunidades por nome ou código
-- [ ] Descoberta de eventos via comunidades das quais o usuário faz parte
-- [ ] Compartilhamento viral por links (evento e comunidade)
+- [x] Feed de eventos e comunidades com busca por texto e filtro por tipo (tab)
+- [x] Busca manual de comunidades por nome ou código
+- [x] Perfil público de usuário acessível por username (`/u/[username]`)
+- [x] Compartilhamento por link de convite de evento
+- [ ] Descoberta de eventos via comunidades das quais o usuário faz parte (feed)
+- [ ] Compartilhamento viral por links de comunidade
 - [ ] Preview público de evento acessível sem login (via web)
 
 ## 8. Regras de Negócio
@@ -311,7 +314,7 @@ Interação textual vinculada a um evento. Suporta threads (respostas aninhadas)
 
 ### 9.4 Backend
 
-- Autenticação via Supabase Auth (e-mail/senha + OAuth Google e Apple)
+- Autenticação via Supabase Auth (e-mail/senha)
 - Banco de dados PostgreSQL com Row Level Security (RLS) no lugar de guards customizados
 - Lógica de acesso a dados em `src/services/`, consumida pelo Next.js web e futuramente pelo app mobile
 - Promoção automática de waitlist gerenciada via Supabase
@@ -334,23 +337,23 @@ Itens que precisam de decisão antes da implementação das respectivas features
 
 Features previstas para versões futuras. **Não devem ser implementadas no MVP.**
 
-| Feature                                                    | Observação                          |
-| ---------------------------------------------------------- | ----------------------------------- |
-| Algoritmos de recomendação de comunidades/eventos          | Evolução futura                     |
-| Discovery geográfico ou por interesses                     | Evolução futura                     |
-| Monetização / eventos pagos / ingressos                    | Evolução futura                     |
-| Gamificação / social graph complexo                        | Evolução futura                     |
-| Feed/rede social avançada                                  | Evolução futura                     |
-| Chat em tempo real dentro do app                           | WhatsApp cobre esse papel           |
-| Transmissão ao vivo de eventos                             | Evolução futura                     |
-| Calendário externo / sincronização (Google Calendar, etc.) | Evolução futura                     |
-| Integração profunda com APIs do WhatsApp/Discord           | Evolução futura                     |
-| Sistema de ranking/popularidade                            | Evolução futura                     |
-| Registro e discussão de leituras, filmes e séries          | Evolução futura — produto adjacente |
+| Feature                                                    | Observação                |
+| ---------------------------------------------------------- | ------------------------- |
+| Algoritmos de recomendação de comunidades/eventos          | Evolução futura           |
+| Discovery geográfico ou por interesses                     | Evolução futura           |
+| Monetização / eventos pagos / ingressos                    | Evolução futura           |
+| Gamificação / social graph complexo                        | Evolução futura           |
+| Feed/rede social avançada                                  | Evolução futura           |
+| Chat em tempo real dentro do app                           | WhatsApp cobre esse papel |
+| Transmissão ao vivo de eventos                             | Evolução futura           |
+| Calendário externo / sincronização (Google Calendar, etc.) | Evolução futura           |
+| Integração profunda com APIs do WhatsApp/Discord           | Evolução futura           |
+| Sistema de ranking/popularidade                            | Evolução futura           |
 
 ## 12. Histórico de Mudanças
 
-| Data       | Versão | Descrição                                                                                                                             |
-| ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Abril 2026 | 1.0    | Versão inicial da especificação                                                                                                       |
-| Maio 2026  | 1.1    | Pivô de arquitetura: NestJS + Prisma → Next.js 15 + Supabase BaaS; pasta `api/` removida do monorepo; `specs/` renomeada para `docs/` |
+| Data       | Versão | Descrição                                                                                                                              |
+| ---------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Abril 2026 | 1.0    | Versão inicial da especificação                                                                                                        |
+| Maio 2026  | 1.1    | Pivô de arquitetura: NestJS + Prisma → Next.js 15 + Supabase BaaS; pasta `api/` removida do monorepo; `specs/` renomeada para `docs/`  |
+| Maio 2026  | 1.2    | Usernames e slugs em perfis e comunidades; feed com busca e tabs; recuperação de senha; convite por link e dialog; contagem de membros |

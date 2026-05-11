@@ -43,18 +43,20 @@ npm run db:seed       # create default test user (requires SUPABASE_SERVICE_ROLE
 
 ```
 src/
-  app/           - Next.js App Router (routes only - no business logic)
-    (protected)/ - authenticated routes (events, communities, profile)
-    api/         - API routes (server-side operations requiring service role)
-    i/[code]/    - event invite page (public)
-    login/       - login and signup
-  features/      - feature-based modules (UI + logic co-located by domain)
-  components/    - shared UI components
-  schemas/       - Zod validation schemas (single source of truth per entity)
-  services/      - data access layer (Supabase queries, no UI concerns)
-  hooks/         - shared custom hooks
-  lib/           - auth context, upload helpers, utilities
-  integrations/  - Supabase clients and generated types
+  app/                 - Next.js App Router (routes only - no business logic)
+    (protected)/       - authenticated routes (events, communities, profile)
+    api/               - API routes (server-side operations requiring service role)
+    i/[code]/          - event invite page (public)
+    login/             - login and signup
+    reset-password/    - password recovery
+    u/[username]/      - public user profile by username
+  features/            - feature-based modules (UI + logic co-located by domain)
+  components/          - shared UI components
+  schemas/             - Zod validation schemas (single source of truth per entity)
+  services/            - data access layer (Supabase queries, no UI concerns)
+  hooks/               - shared custom hooks
+  lib/                 - auth context, upload helpers, utilities
+  integrations/        - Supabase clients and generated types
 ```
 
 **Environment:** copy `.env.example` to `.env.local` and fill in:
@@ -94,6 +96,8 @@ src/
 Supabase (PostgreSQL) with Row Level Security. Migrations in `supabase/migrations/`, applied via `npm run db:push`.
 
 Tables: `profiles`, `communities`, `community_members`, `events`, `event_organizers`, `rsvps`, `event_comments`.
+
+Notable columns added recently: `profiles.username` (unique, used in `/u/[username]` routes), `communities.slug` (unique, URL-friendly identifier).
 
 ## Key domain rules
 
